@@ -1,4 +1,11 @@
 
+# 
+# Sat Sep 22 14:49:33 CEST 2018
+- Rolled back Phaser to v3.12.0. Issue with texture marked as delete when calling `generateTexture`.
+- Anchor point for images is in 0.5, 0.5. Good to know!
+* Played with snapshot method. Complicated to reuse the image as it was being lazyloaded. image.onload did the trick but after all the result was not very good. Lets generate the map manually.
+* Tried generating an size with a real-life size equivalent given a walk speed but TOO big. Need chunking!
+
 # Tue Sep 18 18:28:05 CEST 2018
 - Looking for new character atlas to be used as base and replace tuxemon's misa girl.
 	- Talking with people in #opengameart found these:

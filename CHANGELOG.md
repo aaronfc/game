@@ -6,7 +6,9 @@
 * Randomly generated map.
 
 # Changelog
-
+* Rolled back to v3.12.0 because texture marked as deleted when calling `generateTexture`.
+* Replacing minimap camera with image. Not yet generated! (just a black image for now).
+* Extracted many values to constants.
 * Making minimap size configurable. Black lines appearing if size is not in base 2.
 * Adding minimap (press M) to see whole world at once. Problems: Bug with 3.10.0, fixed in 3.12.0. Bug with camera background, fixed by me and PRed.
 * Creating heightmap with simplex noise algorithm to make it look more realistic.
