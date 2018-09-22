@@ -4,15 +4,36 @@
  *  - Tuxemon, https://github.com/Tuxemon/Tuxemon
  */
 
+// UI config
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 600;
+const MINIMAP_WIDTH = 600; // Base 2
+const MINIMAP_HEIGHT = 600; // Base 2
 const TILE_SIZE = 32;
-const WORLD_TILES_WIDTH = 65;
-const WORLD_TILES_HEIGHT = 65;
+
+// Character config
+const WALKING_VELOCITY = 700; // px/second
+
+// Real life
+const EARTH_EQUATORIAL_CIRCUMFERENCE = 40075 * 1000; // meters
+const EARTH_MERIDIONAL_HALF_CIRCUMFERENCE = 40007 * 1000 / 2; // meters
+const AVERAGE_WALKING_VELOCITY =  83.33; // 5.0km/h -> 83.33m/s
+const SECONDS_TO_WALK_EARTH_LONGITUDE = EARTH_EQUATORIAL_CIRCUMFERENCE/AVERAGE_WALKING_VELOCITY;
+const SECONDS_TO_WALK_EARTH_LATITUDE = EARTH_MERIDIONAL_HALF_CIRCUMFERENCE/AVERAGE_WALKING_VELOCITY;
+
+// Virtual world config
+const CALCULATED_WORLD_WIDTH = SECONDS_TO_WALK_EARTH_LONGITUDE*WALKING_VELOCITY;
+const CALCULATED_WORLD_HEIGHT = SECONDS_TO_WALK_EARTH_LATITUDE*WALKING_VELOCITY;
+var WORLD_TILES_WIDTH = Math.floor(CALCULATED_WORLD_WIDTH/TILE_SIZE);
+var WORLD_TILES_HEIGHT = Math.floor(CALCULATED_WORLD_HEIGHT/TILE_SIZE);
+console.log(WORLD_TILES_WIDTH);
+console.log(WORLD_TILES_HEIGHT);
+WORLD_TILES_WIDTH = 100;
+WORLD_TILES_HEIGHT = 100;
 const WORLD_WIDTH = TILE_SIZE * WORLD_TILES_WIDTH;
 const WORLD_HEIGHT = TILE_SIZE * WORLD_TILES_HEIGHT;
-const MINIMAP_WIDTH = 512; // Base 2
-const MINIMAP_HEIGHT = 512; // Base 2
+
+
 
 const config = {
   type: Phaser.WEBGL,
@@ -37,6 +58,7 @@ const game = new Phaser.Game(config);
 let cursors;
 let player;
 let debugGraphic;
+let minimapImage;
 
 function preload() {
   this.load.image("tiles", "assets/tuxmon-sample-32px-extruded.png");
@@ -54,10 +76,10 @@ var noise = new Noise(Math.random());
 
 function generateHeights(width, height) {
   var properties = [];
-  for(var i=0; i<65; i++) {
+  for(var i=0; i<height; i++) { // TODO @aaron - Play with this loop values to see how affects scenary
       properties[i] = [];
-      for(var j=0; j<65; j++) {
-          var value = noise.simplex2(i/65, j/65);
+      for(var j=0; j<width; j++) {
+          var value = noise.simplex2(i/200, j/200);
           properties[i][j] = value;
       }
   }
@@ -74,9 +96,9 @@ function generateGround(mapHeights) {
   const WATER_3 = 250;
 
   var ground = [];
-  for(var i=0; i<65; i++) {
+  for(var i=0; i<mapHeights.length; i++) {
       ground[i] = [];
-      for(var j=0; j<65; j++) {
+      for(var j=0; j<mapHeights[0].length; j++) {
         const height = mapHeights[i][j];
           /*ground[i][j] = height < 0.3 ? WATER_1 :
             height < 0.6 ? Math.random() < 0.5 ? DIRT_1 : DIRT_2 : Math.random() < 0.5 ? GRASS_1 : GRASS_2;*/
@@ -84,6 +106,16 @@ function generateGround(mapHeights) {
       }
   }
   return ground;
+}
+
+function createMinimapImage(scene, ground) {
+  let graphics = scene.make.graphics().fillStyle(0x000000).fillRect(0, 0, MINIMAP_WIDTH, MINIMAP_HEIGHT);
+  graphics.generateTexture('minimap', MINIMAP_WIDTH, MINIMAP_HEIGHT);
+  minimapImage = scene.add.image(CANVAS_WIDTH/2, CANVAS_HEIGHT/2, 'minimap')
+    .setDepth(30)
+    .setScrollFactor(0)
+    .setVisible(false);
+  graphics.destroy();
 }
 
 function create() {
@@ -96,12 +128,15 @@ function create() {
   const tileset = map.addTilesetImage("tiles", "tiles", 32, 32, 1, 2);
   // Parameters: layer name (or index) from Tiled, tileset, x, y
   //const belowLayer = map.createStaticLayer(0, tileset, 0, 0);
-  const groundLayer = map.createBlankDynamicLayer("ground", tileset, 0, 0, 65, 65, 32, 32);
+  const groundLayer = map.createBlankDynamicLayer("ground", tileset, 0, 0, WORLD_TILES_WIDTH, WORLD_TILES_HEIGHT, TILE_SIZE, TILE_SIZE);
   // Empty 50x50 grass
   const mapHeights = generateHeights(WORLD_TILES_WIDTH, WORLD_TILES_HEIGHT);
   const ground = generateGround(mapHeights);
+
+  createMinimapImage(this, ground);
+
   groundLayer.putTilesAt(ground, 0, 0);
-  const worldLayer = map.createBlankDynamicLayer("world", tileset, 0, 0, 65, 65, 32, 32);
+  const worldLayer = map.createBlankDynamicLayer("world", tileset, 0, 0, WORLD_TILES_WIDTH, WORLD_TILES_HEIGHT, TILE_SIZE, TILE_SIZE);
   // Mostly empty world but with some poles
   var world = [];
   for(var i=0; i<WORLD_TILES_HEIGHT; i++) {
@@ -169,21 +204,6 @@ function create() {
   camera.startFollow(player);
   camera.setName("main");
 
-  this.minimap = this.cameras.add(CANVAS_WIDTH/2-MINIMAP_WIDTH/2, CANVAS_HEIGHT/2-MINIMAP_HEIGHT/2, MINIMAP_WIDTH, MINIMAP_HEIGHT);
-  this.minimap.setRoundPixels(true);
-  this.minimap.setZoom(Math.min(MINIMAP_WIDTH/WORLD_WIDTH, MINIMAP_HEIGHT/WORLD_HEIGHT));
-  this.minimap.setBackgroundColor(0x000000);
-  this.minimap.setScroll(WORLD_WIDTH/2, WORLD_HEIGHT/2); // Point to the center of the world!
-  this.minimap.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
-  this.minimap.setVisible(false);
-  this.minimap.setName("minimap");
-
-  //this.minimap.scrollX = 0;
-  //this.minimap.scrollY = 0;
-  //camera.setViewport(0, 0, 32*65, 32*65);
-  //camera.setScroll(32*32, 32*32);
-  //camera.setZoom(2);
-
   cursors = this.input.keyboard.createCursorKeys();
 
   // Help text that has a "fixed" position on the screen
@@ -210,7 +230,7 @@ function create() {
         .setDepth(20);
       worldLayer.renderDebug(debugGraphic, {
         tileColor: null, // Color of non-colliding tiles
-        collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
+        collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tile
         faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
       });
     } else {
@@ -221,12 +241,16 @@ function create() {
   });
 
   // Minimap "M"
-  this.input.keyboard.on("keydown_M", event => { this.minimap.setVisible(!this.minimap.visible);});
+  this.input.keyboard.on("keydown_M", event => {
+    if(minimapImage) {
+      minimapImage.setVisible(!minimapImage.visible);
+    }
+  });
 
 }
 
 function update(time, delta) {
-  const speed = 175;
+  const speed = WALKING_VELOCITY;
   const prevVelocity = player.body.velocity.clone();
 
   // Stop any previous movement from the last frame

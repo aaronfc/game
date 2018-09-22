@@ -1262,7 +1262,7 @@ var Animation = new Class({
             //  Yoyo? (happens before repeat)
             if (component._yoyo)
             {
-                this.handleYoyoFrame(component, false);
+                this._handleYoyoFrame(component, false);
             }
             else if (component.repeatCounter > 0)
             {
@@ -1284,45 +1284,39 @@ var Animation = new Class({
         }
         else
         {
-            this.updateAndGetNextTick(component, frame.nextFrame);
+            this._updateAndGetNextTick(component, frame.nextFrame);
         }
     },
 
     /**
      * Handle the yoyo functionality in nextFrame and previousFrame methods.
      *
-     * @method Phaser.Animations.Animation#handleYoyoFrame
-     * @private
+     * @method Phaser.Animations.Animation#_handleYoyoFrame
      * @since 3.12.0
      *
      * @param {Phaser.GameObjects.Components.Animation} component - The Animation Component to advance.
-     * @param {boolean} isReverse - Is animation in reverse mode? (Default: false)
+     * @param {bool} isReverse - Is animation in reverse mode? (Default: false)
      */
-    handleYoyoFrame: function (component, isReverse)
+    _handleYoyoFrame: function (component, isReverse)
     {
         if (!isReverse) { isReverse = false; }
 
         if (component._reverse === !isReverse && component.repeatCounter > 0)
         {
             component.forward = isReverse;
-
             this.repeatAnimation(component);
-
             return;
         }
 
         if (component._reverse !== isReverse && component.repeatCounter === 0)
         {
             this.completeAnimation(component);
-
             return;
         }
         
         component.forward = isReverse;
-
-        var frame = (isReverse) ? component.currentFrame.nextFrame : component.currentFrame.prevFrame;
-
-        this.updateAndGetNextTick(component, frame);
+        var frame = isReverse ? component.currentFrame.nextFrame : component.currentFrame.prevFrame;
+        this._updateAndGetNextTick(component, frame);
     },
 
     /**
@@ -1358,7 +1352,7 @@ var Animation = new Class({
 
             if (component._yoyo)
             {
-                this.handleYoyoFrame(component, true);
+                this._handleYoyoFrame(component, true);
             }
             else if (component.repeatCounter > 0)
             {
@@ -1381,23 +1375,22 @@ var Animation = new Class({
         }
         else
         {
-            this.updateAndGetNextTick(component, frame.prevFrame);
+            this._updateAndGetNextTick(component, frame.prevFrame);
         }
     },
 
     /**
-     * Update Frame and Wait next tick.
+     * Update Frame and Wait next tick
      *
-     * @method Phaser.Animations.Animation#updateAndGetNextTick
-     * @private
+     * @method Phaser.Animations.Animation#_updateAndGetNextTick
      * @since 3.12.0
      *
-     * @param {Phaser.Animations.AnimationFrame} frame - An Animation frame.
+     * @param {Phaser.Animations.AnimationFrame} frame - An Animation frame
+     *
      */
-    updateAndGetNextTick: function (component, frame)
+    _updateAndGetNextTick: function (component, frame)
     {
         component.updateFrame(frame);
-
         this.getNextTick(component);
     },
 
@@ -2660,7 +2653,7 @@ var ValueToColor = __webpack_require__(/*! ../display/color/ValueToColor */ "./d
  *
  * @property {PluginObjectItem[]} [global=null] - [description]
  * @property {PluginObjectItem[]} [scene=null] - [description]
- * @property {string[]} [default=[]] - [description]
+ * @property {Array} [default=[]] - [description]
  * @property {*} [defaultMerge={}] - [description]
  */
 
@@ -3868,48 +3861,40 @@ var Game = new Class({
 
     /**
      * Game Pre-Step event.
-     * 
-     * Listen for it using the event type `prestep`.
      *
      * This event is dispatched before the main Step starts.
      * By this point none of the Scene updates have happened.
      * Hook into it from plugins or systems that need to update before the Scene Manager does.
      *
      * @event Phaser.Game#prestepEvent
-     * @param {number} time - The current time. Either a High Resolution Timer value if it comes from Request Animation Frame, or Date.now if using SetTimeout.
-     * @param {number} delta - The delta time in ms since the last frame. This is a smoothed and capped value based on the FPS rate.
+     * @param {number} time - [description]
+     * @param {number} delta - [description]
      */
 
     /**
      * Game Step event.
-     * 
-     * Listen for it using the event type `step`.
      *
      * This event is dispatched after Pre-Step and before the Scene Manager steps.
      * Hook into it from plugins or systems that need to update before the Scene Manager does, but after core Systems.
      *
      * @event Phaser.Game#stepEvent
-     * @param {number} time - The current time. Either a High Resolution Timer value if it comes from Request Animation Frame, or Date.now if using SetTimeout.
-     * @param {number} delta - The delta time in ms since the last frame. This is a smoothed and capped value based on the FPS rate.
+     * @param {number} time - [description]
+     * @param {number} delta - [description]
      */
 
     /**
      * Game Post-Step event.
-     * 
-     * Listen for it using the event type `poststep`.
      *
      * This event is dispatched after the Scene Manager has updated.
      * Hook into it from plugins or systems that need to do things before the render starts.
      *
      * @event Phaser.Game#poststepEvent
-     * @param {number} time - The current time. Either a High Resolution Timer value if it comes from Request Animation Frame, or Date.now if using SetTimeout.
-     * @param {number} delta - The delta time in ms since the last frame. This is a smoothed and capped value based on the FPS rate.
+     * @param {number} time - [description]
+     * @param {number} delta - [description]
      */
 
     /**
      * Game Pre-Render event.
-     * 
-     * Listen for it using the event type `prerender`.
      *
      * This event is dispatched immediately before any of the Scenes have started to render.
      * The renderer will already have been initialized this frame, clearing itself and preparing to receive
@@ -3921,8 +3906,6 @@ var Game = new Class({
 
     /**
      * Game Post-Render event.
-     * 
-     * Listen for it using the event type `postrender`.
      *
      * This event is dispatched right at the end of the render process.
      * Every Scene will have rendered and drawn to the canvas.
@@ -3947,8 +3930,8 @@ var Game = new Class({
      * @fires Phaser.Game#postrenderEvent
      * @since 3.0.0
      *
-     * @param {number} time - The current time. Either a High Resolution Timer value if it comes from Request Animation Frame, or Date.now if using SetTimeout.
-     * @param {number} delta - The delta time in ms since the last frame. This is a smoothed and capped value based on the FPS rate.
+     * @param {integer} time - The current timestamp as generated by the Request Animation Frame or SetTimeout.
+     * @param {number} delta - The delta time, in ms, elapsed since the last frame.
      */
     step: function (time, delta)
     {
@@ -4011,8 +3994,8 @@ var Game = new Class({
      * @fires Phaser.Game#postrenderEvent
      * @since 3.2.0
      *
-     * @param {number} time - The current time. Either a High Resolution Timer value if it comes from Request Animation Frame, or Date.now if using SetTimeout.
-     * @param {number} delta - The delta time in ms since the last frame. This is a smoothed and capped value based on the FPS rate.
+     * @param {integer} time - The current timestamp as generated by the Request Animation Frame or SetTimeout.
+     * @param {number} delta - The delta time elapsed since the last frame.
      */
     headlessStep: function (time, delta)
     {
@@ -4039,8 +4022,6 @@ var Game = new Class({
 
     /**
      * Game Pause event.
-     * 
-     * Listen for it using the event type `pause`.
      *
      * This event is dispatched when the game loop enters a paused state, usually as a result of the Visibility Handler.
      *
@@ -4065,8 +4046,6 @@ var Game = new Class({
 
     /**
      * Game Resume event.
-     * 
-     * Listen for it using the event type `resume`.
      *
      * This event is dispatched when the game loop leaves a paused state and resumes running.
      *
@@ -4121,8 +4100,6 @@ var Game = new Class({
 
     /**
      * Game Resize event.
-     * 
-     * Listen for it using the event type `resize`.
      *
      * @event Phaser.Game#resizeEvent
      * @param {number} width - The new width of the Game.
@@ -4134,7 +4111,6 @@ var Game = new Class({
      * Then resizes the Renderer and Input Manager scale.
      *
      * @method Phaser.Game#resize
-     * @fires Phaser.Game#reiszeEvent
      * @since 3.2.0
      *
      * @param {number} width - The new width of the game.
@@ -4158,14 +4134,6 @@ var Game = new Class({
     },
 
     /**
-     * Game Destroy event.
-     * 
-     * Listen for it using the event type `destroy`.
-     *
-     * @event Phaser.Game#destroyEvent
-     */
-
-    /**
      * Flags this Game instance as needing to be destroyed on the next frame.
      * It will wait until the current frame has completed and then call `runDestroy` internally.
      * 
@@ -4173,7 +4141,6 @@ var Game = new Class({
      * memory being held by the core Phaser plugins. If you do need to create another game instance on the same page, leave this as `false`.
      *
      * @method Phaser.Game#destroy
-     * @fires Phaser.Game#destroyEvent
      * @since 3.0.0
      *
      * @param {boolean} removeCanvas - Set to `true` if you would like the parent canvas element removed from the DOM, or `false` to leave it in place.
@@ -9241,7 +9208,7 @@ var Fade = new Class({
      * @method Phaser.Cameras.Scene2D.Effects.Fade#postRenderWebGL
      * @since 3.5.0
      *
-     * @param {Phaser.Renderer.WebGL.Pipelines.TextureTintPipeline} pipeline - The WebGL Pipeline to render to.
+     * @param {Phaser.Renderer.WebGL.Pipelines.FlatTintPipeline} pipeline - The WebGL Pipeline to render to.
      * @param {function} getTintFunction - A function that will return the gl safe tint colors.
      *
      * @return {boolean} `true` if the effect drew to the renderer, otherwise `false`.
@@ -9626,7 +9593,7 @@ var Flash = new Class({
      * @method Phaser.Cameras.Scene2D.Effects.Flash#postRenderWebGL
      * @since 3.5.0
      *
-     * @param {Phaser.Renderer.WebGL.Pipelines.TextureTintPipeline} pipeline - The WebGL Pipeline to render to.
+     * @param {Phaser.Renderer.WebGL.Pipelines.FlatTintPipeline} pipeline - The WebGL Pipeline to render to.
      * @param {function} getTintFunction - A function that will return the gl safe tint colors.
      *
      * @return {boolean} `true` if the effect drew to the renderer, otherwise `false`.
@@ -10815,7 +10782,7 @@ var CONST = {
      * @type {string}
      * @since 3.0.0
      */
-    VERSION: '3.13.0-beta1',
+    VERSION: '3.12.0',
 
     BlendModes: __webpack_require__(/*! ./renderer/BlendModes */ "./renderer/BlendModes.js"),
 
@@ -13455,8 +13422,6 @@ module.exports = Smoothing();
 var Class = __webpack_require__(/*! ../../utils/Class */ "./utils/Class.js");
 var GetColor = __webpack_require__(/*! ./GetColor */ "./display/color/GetColor.js");
 var GetColor32 = __webpack_require__(/*! ./GetColor32 */ "./display/color/GetColor32.js");
-var HSVToRGB = __webpack_require__(/*! ./HSVToRGB */ "./display/color/HSVToRGB.js");
-var RGBToHSV = __webpack_require__(/*! ./RGBToHSV */ "./display/color/RGBToHSV.js");
 
 /**
  * @classdesc
@@ -13528,52 +13493,6 @@ var Color = new Class({
         this.a = 255;
 
         /**
-         * The hue color value. A number between 0 and 1.
-         * This is the base color.
-         *
-         * @name Phaser.Display.Color#_h
-         * @type {number}
-         * @default 0
-         * @private
-         * @since 3.13.0
-         */
-        this._h = 0;
-
-        /**
-         * The saturation color value. A number between 0 and 1.
-         * This controls how much of the hue will be in the final color, where 1 is fully saturated and 0 will give you white.
-         *
-         * @name Phaser.Display.Color#_s
-         * @type {number}
-         * @default 0
-         * @private
-         * @since 3.13.0
-         */
-        this._s = 0;
-
-        /**
-         * The lightness color value. A number between 0 and 1.
-         * This controls how dark the color is. Where 1 is as bright as possible and 0 is black.
-         *
-         * @name Phaser.Display.Color#_v
-         * @type {number}
-         * @default 0
-         * @private
-         * @since 3.13.0
-         */
-        this._v = 0;
-
-        /**
-         * Is this color update locked?
-         *
-         * @name Phaser.Display.Color#_locked
-         * @type {boolean}
-         * @private
-         * @since 3.13.0
-         */
-        this._locked = false;
-
-        /**
          * An array containing the calculated color values for WebGL use.
          *
          * @name Phaser.Display.Color#gl
@@ -13628,16 +13547,12 @@ var Color = new Class({
      */
     transparent: function ()
     {
-        this._locked = true;
-
         this.red = 0;
         this.green = 0;
         this.blue = 0;
         this.alpha = 0;
 
-        this._locked = false;
-
-        return this.update(true);
+        return this.update();
     },
 
     /**
@@ -13650,25 +13565,19 @@ var Color = new Class({
      * @param {integer} green - The green color value. A number between 0 and 255.
      * @param {integer} blue - The blue color value. A number between 0 and 255.
      * @param {integer} [alpha=255] - The alpha value. A number between 0 and 255.
-     * @param {boolean} [updateHSV=true] - Update the HSV values after setting the RGB values?
      *
      * @return {Phaser.Display.Color} This Color object.
      */
-    setTo: function (red, green, blue, alpha, updateHSV)
+    setTo: function (red, green, blue, alpha)
     {
         if (alpha === undefined) { alpha = 255; }
-        if (updateHSV === undefined) { updateHSV = true; }
-
-        this._locked = true;
 
         this.red = red;
         this.green = green;
         this.blue = blue;
         this.alpha = alpha;
 
-        this._locked = false;
-
-        return this.update(updateHSV);
+        return this.update();
     },
 
     /**
@@ -13688,16 +13597,12 @@ var Color = new Class({
     {
         if (alpha === undefined) { alpha = 1; }
 
-        this._locked = true;
-
         this.redGL = red;
         this.greenGL = green;
         this.blueGL = blue;
         this.alphaGL = alpha;
 
-        this._locked = false;
-
-        return this.update(true);
+        return this.update();
     },
 
     /**
@@ -13712,8 +13617,6 @@ var Color = new Class({
      */
     setFromRGB: function (color)
     {
-        this._locked = true;
-
         this.red = color.r;
         this.green = color.g;
         this.blue = color.b;
@@ -13723,79 +13626,22 @@ var Color = new Class({
             this.alpha = color.a;
         }
 
-        this._locked = false;
-
-        return this.update(true);
-    },
-
-    /**
-     * Sets the color based on the hue, saturation and lightness values given.
-     *
-     * @method Phaser.Display.Color#setFromHSV
-     * @since 3.13.0
-     *
-     * @param {number} h - The hue, in the range 0 - 1. This is the base color.
-     * @param {number} s - The saturation, in the range 0 - 1. This controls how much of the hue will be in the final color, where 1 is fully saturated and 0 will give you white.
-     * @param {number} v - The value, in the range 0 - 1. This controls how dark the color is. Where 1 is as bright as possible and 0 is black.
-     *
-     * @return {Phaser.Display.Color} This Color object.
-     */
-    setFromHSV: function (h, s, v)
-    {
-        return HSVToRGB(h, s, v, this);
+        return this.update();
     },
 
     /**
      * Updates the internal cache values.
      *
      * @method Phaser.Display.Color#update
-     * @private
      * @since 3.0.0
      *
      * @return {Phaser.Display.Color} This Color object.
      */
-    update: function (updateHSV)
+    update: function ()
     {
-        if (updateHSV === undefined) { updateHSV = false; }
-
-        if (this._locked)
-        {
-            return this;
-        }
-
-        var r = this.r;
-        var g = this.g;
-        var b = this.b;
-        var a = this.a;
-
-        this._color = GetColor(r, g, b);
-        this._color32 = GetColor32(r, g, b, a);
-        this._rgba = 'rgba(' + r + ',' + g + ',' + b + ',' + (a / 255) + ')';
-
-        if (updateHSV)
-        {
-            RGBToHSV(r, g, b, this);
-        }
-
-        return this;
-    },
-
-    /**
-     * Updates the internal hsv cache values.
-     *
-     * @method Phaser.Display.Color#updateHSV
-     * @private
-     * @since 3.13.0
-     *
-     * @return {Phaser.Display.Color} This Color object.
-     */
-    updateHSV: function ()
-    {
-        var r = this.r;
-        var g = this.g;
-        var b = this.b;
-
-        RGBToHSV(r, g, b, this);
+        this._color = GetColor(this.r, this.g, this.b);
+        this._color32 = GetColor32(this.r, this.g, this.b, this.a);
+        this._rgba = 'rgba(' + this.r + ',' + this.g + ',' + this.b + ',' + (this.a / 255) + ')';
 
         return this;
     },
@@ -13811,158 +13657,6 @@ var Color = new Class({
     clone: function ()
     {
         return new Color(this.r, this.g, this.b, this.a);
-    },
-
-    /**
-     * Sets this Color object to be grayscaled based on the shade value given.
-     *
-     * @method Phaser.Display.Color#gray
-     * @since 3.13.0
-     * 
-     * @param {integer} shade - A value between 0 and 255.
-     *
-     * @return {Phaser.Display.Color} This Color object.
-     */
-    gray: function (shade)
-    {
-        return this.setTo(shade, shade, shade);
-    },
-
-    /**
-     * Sets this Color object to be a random color between the `min` and `max` values given.
-     *
-     * @method Phaser.Display.Color#random
-     * @since 3.13.0
-     * 
-     * @param {integer} [min=0] - The minimum random color value. Between 0 and 255.
-     * @param {integer} [max=255] - The maximum random color value. Between 0 and 255.
-     *
-     * @return {Phaser.Display.Color} This Color object.
-     */
-    random: function (min, max)
-    {
-        if (min === undefined) { min = 0; }
-        if (max === undefined) { max = 255; }
-
-        var r = Math.floor(min + Math.random() * (max - min));
-        var g = Math.floor(min + Math.random() * (max - min));
-        var b = Math.floor(min + Math.random() * (max - min));
-
-        return this.setTo(r, g, b);
-    },
-
-    /**
-     * Sets this Color object to be a random grayscale color between the `min` and `max` values given.
-     *
-     * @method Phaser.Display.Color#randomGray
-     * @since 3.13.0
-     * 
-     * @param {integer} [min=0] - The minimum random color value. Between 0 and 255.
-     * @param {integer} [max=255] - The maximum random color value. Between 0 and 255.
-     *
-     * @return {Phaser.Display.Color} This Color object.
-     */
-    randomGray: function (min, max)
-    {
-        if (min === undefined) { min = 0; }
-        if (max === undefined) { max = 255; }
-
-        var s = Math.floor(min + Math.random() * (max - min));
-
-        return this.setTo(s, s, s);
-    },
-
-    /**
-     * Increase the saturation of this Color by the percentage amount given.
-     * The saturation is the amount of the base color in the hue.
-     *
-     * @method Phaser.Display.Color#saturate
-     * @since 3.13.0
-     * 
-     * @param {integer} amount - The percentage amount to change this color by. A value between 0 and 100.
-     *
-     * @return {Phaser.Display.Color} This Color object.
-     */
-    saturate: function (amount)
-    {
-        this.s += amount / 100;
-
-        return this;
-    },
-
-    /**
-     * Decrease the saturation of this Color by the percentage amount given.
-     * The saturation is the amount of the base color in the hue.
-     *
-     * @method Phaser.Display.Color#desaturate
-     * @since 3.13.0
-     * 
-     * @param {integer} amount - The percentage amount to change this color by. A value between 0 and 100.
-     *
-     * @return {Phaser.Display.Color} This Color object.
-     */
-    desaturate: function (amount)
-    {
-        this.s -= amount / 100;
-
-        return this;
-    },
-
-    /**
-     * Increase the lightness of this Color by the percentage amount given.
-     *
-     * @method Phaser.Display.Color#lighten
-     * @since 3.13.0
-     * 
-     * @param {integer} amount - The percentage amount to change this color by. A value between 0 and 100.
-     *
-     * @return {Phaser.Display.Color} This Color object.
-     */
-    lighten: function (amount)
-    {
-        this.v += amount / 100;
-
-        return this;
-    },
-
-    /**
-     * Decrease the lightness of this Color by the percentage amount given.
-     *
-     * @method Phaser.Display.Color#darken
-     * @since 3.13.0
-     * 
-     * @param {integer} amount - The percentage amount to change this color by. A value between 0 and 100.
-     *
-     * @return {Phaser.Display.Color} This Color object.
-     */
-    darken: function (amount)
-    {
-        this.v -= amount / 100;
-
-        return this;
-    },
-
-    /**
-     * Brighten this Color by the percentage amount given.
-     *
-     * @method Phaser.Display.Color#brighten
-     * @since 3.13.0
-     * 
-     * @param {integer} amount - The percentage amount to change this color by. A value between 0 and 100.
-     *
-     * @return {Phaser.Display.Color} This Color object.
-     */
-    brighten: function (amount)
-    {
-        var r = this.r;
-        var g = this.g;
-        var b = this.b;
-
-        r = Math.max(0, Math.min(255, r - Math.round(255 * - (amount / 100))));
-        g = Math.max(0, Math.min(255, g - Math.round(255 * - (amount / 100))));
-        b = Math.max(0, Math.min(255, b - Math.round(255 * - (amount / 100))));
-
-        return this.setTo(r, g, b);
     },
 
     /**
@@ -14036,7 +13730,7 @@ var Color = new Class({
 
             this.r = Math.floor(this.gl[0] * 255);
 
-            this.update(true);
+            this.update();
         }
 
     },
@@ -14061,7 +13755,7 @@ var Color = new Class({
 
             this.g = Math.floor(this.gl[1] * 255);
 
-            this.update(true);
+            this.update();
         }
 
     },
@@ -14086,7 +13780,7 @@ var Color = new Class({
 
             this.b = Math.floor(this.gl[2] * 255);
 
-            this.update(true);
+            this.update();
         }
 
     },
@@ -14138,7 +13832,7 @@ var Color = new Class({
 
             this.gl[0] = value / 255;
 
-            this.update(true);
+            this.update();
         }
 
     },
@@ -14165,7 +13859,7 @@ var Color = new Class({
 
             this.gl[1] = value / 255;
 
-            this.update(true);
+            this.update();
         }
 
     },
@@ -14192,7 +13886,7 @@ var Color = new Class({
 
             this.gl[2] = value / 255;
 
-            this.update(true);
+            this.update();
         }
 
     },
@@ -14220,78 +13914,6 @@ var Color = new Class({
             this.gl[3] = value / 255;
 
             this.update();
-        }
-
-    },
-
-    /**
-     * The hue color value. A number between 0 and 1.
-     * This is the base color.
-     *
-     * @name Phaser.Display.Color#h
-     * @type {number}
-     * @since 3.13.0
-     */
-    h: {
-
-        get: function ()
-        {
-            return this._h;
-        },
-
-        set: function (value)
-        {
-            this._h = value;
-
-            HSVToRGB(value, this._s, this._v, this);
-        }
-
-    },
-
-    /**
-     * The saturation color value. A number between 0 and 1.
-     * This controls how much of the hue will be in the final color, where 1 is fully saturated and 0 will give you white.
-     *
-     * @name Phaser.Display.Color#s
-     * @type {number}
-     * @since 3.13.0
-     */
-    s: {
-
-        get: function ()
-        {
-            return this._s;
-        },
-
-        set: function (value)
-        {
-            this._s = value;
-
-            HSVToRGB(this._h, value, this._v, this);
-        }
-
-    },
-
-    /**
-     * The lightness color value. A number between 0 and 1.
-     * This controls how dark the color is. Where 1 is as bright as possible and 0 is black.
-     *
-     * @name Phaser.Display.Color#v
-     * @type {number}
-     * @since 3.13.0
-     */
-    v: {
-
-        get: function ()
-        {
-            return this._v;
-        },
-
-        set: function (value)
-        {
-            this._v = value;
-
-            HSVToRGB(this._h, this._s, value, this);
         }
 
     }
@@ -14370,112 +13992,6 @@ var GetColor32 = function (red, green, blue, alpha)
 };
 
 module.exports = GetColor32;
-
-
-/***/ }),
-
-/***/ "./display/color/HSVToRGB.js":
-/*!***********************************!*\
-  !*** ./display/color/HSVToRGB.js ***!
-  \***********************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * @author       Richard Davey <rich@photonstorm.com>
- * @copyright    2018 Photon Storm Ltd.
- * @license      {@link https://github.com/photonstorm/phaser/blob/master/license.txt|MIT License}
- */
-
-var GetColor = __webpack_require__(/*! ./GetColor */ "./display/color/GetColor.js");
-
-/**
- * Converts an HSV (hue, saturation and value) color value to RGB.
- * Conversion formula from http://en.wikipedia.org/wiki/HSL_color_space.
- * Assumes HSV values are contained in the set [0, 1].
- * Based on code by Michael Jackson (https://github.com/mjijackson)
- *
- * @function Phaser.Display.Color.HSVToRGB
- * @since 3.0.0
- *
- * @param {number} h - The hue, in the range 0 - 1. This is the base color.
- * @param {number} s - The saturation, in the range 0 - 1. This controls how much of the hue will be in the final color, where 1 is fully saturated and 0 will give you white.
- * @param {number} v - The value, in the range 0 - 1. This controls how dark the color is. Where 1 is as bright as possible and 0 is black.
- * @param {(ColorObject|Phaser.Display.Color)} [out] - A Color object to store the results in. If not given a new ColorObject will be created.
- *
- * @return {(ColorObject|Phaser.Display.Color)} An object with the red, green and blue values set in the r, g and b properties.
- */
-var HSVToRGB = function (h, s, v, out)
-{
-    if (s === undefined) { s = 1; }
-    if (v === undefined) { v = 1; }
-
-    var i = Math.floor(h * 6);
-    var f = h * 6 - i;
-
-    var p = Math.floor((v * (1 - s)) * 255);
-    var q = Math.floor((v * (1 - f * s)) * 255);
-    var t = Math.floor((v * (1 - (1 - f) * s)) * 255);
-
-    v = Math.floor(v *= 255);
-
-    var r = v;
-    var g = v;
-    var b = v;
-
-    var c = i % 6;
-
-    if (c === 0)
-    {
-        g = t;
-        b = p;
-    }
-    else if (c === 1)
-    {
-        r = q;
-        b = p;
-    }
-    else if (c === 2)
-    {
-        r = p;
-        b = t;
-    }
-    else if (c === 3)
-    {
-        r = p;
-        g = q;
-    }
-    else if (c === 4)
-    {
-        r = t;
-        g = p;
-    }
-    else if (c === 5)
-    {
-        g = p;
-        b = q;
-    }
-
-    if (!out)
-    {
-        return { r: r, g: g, b: b, color: GetColor(r, g, b) };
-    }
-    else if (out.setTo)
-    {
-        return out.setTo(r, g, b, out.alpha, false);
-    }
-    else
-    {
-        out.r = r;
-        out.g = g;
-        out.b = b;
-        out.color = GetColor(r, g, b);
-
-        return out;
-    }
-};
-
-module.exports = HSVToRGB;
 
 
 /***/ }),
@@ -14711,99 +14227,6 @@ var RGBStringToColor = function (rgb)
 };
 
 module.exports = RGBStringToColor;
-
-
-/***/ }),
-
-/***/ "./display/color/RGBToHSV.js":
-/*!***********************************!*\
-  !*** ./display/color/RGBToHSV.js ***!
-  \***********************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-/**
- * @author       Richard Davey <rich@photonstorm.com>
- * @copyright    2018 Photon Storm Ltd.
- * @license      {@link https://github.com/photonstorm/phaser/blob/master/license.txt|MIT License}
- */
-
-/**
- * @typedef {object} HSVColorObject
- *
- * @property {number} h - The hue color value. A number between 0 and 1
- * @property {number} s - The saturation color value. A number between 0 and 1
- * @property {number} v - The lightness color value. A number between 0 and 1
- */
-
-/**
- * Converts an RGB color value to HSV (hue, saturation and value).
- * Conversion forumla from http://en.wikipedia.org/wiki/HSL_color_space.
- * Assumes RGB values are contained in the set [0, 255] and returns h, s and v in the set [0, 1].
- * Based on code by Michael Jackson (https://github.com/mjijackson)
- *
- * @function Phaser.Display.Color.RGBToHSV
- * @since 3.0.0
- *
- * @param {integer} r - The red color value. A number between 0 and 255.
- * @param {integer} g - The green color value. A number between 0 and 255.
- * @param {integer} b - The blue color value. A number between 0 and 255.
- * @param {(HSVColorObject|Phaser.Display.Color)} [out] - An object to store the color values in. If not given an HSV Color Object will be created.
- *
- * @return {(HSVColorObject|Phaser.Display.Color)} An object with the properties `h`, `s` and `v` set.
- */
-var RGBToHSV = function (r, g, b, out)
-{
-    if (out === undefined) { out = { h: 0, s: 0, v: 0 }; }
-
-    r /= 255;
-    g /= 255;
-    b /= 255;
-
-    var min = Math.min(r, g, b);
-    var max = Math.max(r, g, b);
-    var d = max - min;
-
-    // achromatic by default
-    var h = 0;
-    var s = (max === 0) ? 0 : d / max;
-    var v = max;
-
-    if (max !== min)
-    {
-        if (max === r)
-        {
-            h = (g - b) / d + ((g < b) ? 6 : 0);
-        }
-        else if (max === g)
-        {
-            h = (b - r) / d + 2;
-        }
-        else if (max === b)
-        {
-            h = (r - g) / d + 4;
-        }
-
-        h /= 6;
-    }
-
-    if (out.hasOwnProperty('_h'))
-    {
-        out._h = h;
-        out._s = s;
-        out._v = v;
-    }
-    else
-    {
-        out.h = h;
-        out.s = s;
-        out.v = v;
-    }
-
-    return out;
-};
-
-module.exports = RGBToHSV;
 
 
 /***/ }),
@@ -16415,14 +15838,7 @@ var DisplayList = new Class({
      */
     shutdown: function ()
     {
-        var i = this.list.length;
-
-        while (i--)
-        {
-            this.list[i].destroy(true);
-        }
-
-        this.list.length = 0;
+        this.removeAll();
 
         this.systems.events.off('shutdown', this.shutdown, this);
     },
@@ -16636,6 +16052,8 @@ var GameObject = new Class({
 
         //  Tell the Scene to re-sort the children
         scene.sys.queueDepthSort();
+
+        scene.sys.events.once('shutdown', this.destroy, this);
     },
 
     /**
@@ -16979,14 +16397,10 @@ var GameObject = new Class({
      *
      * @method Phaser.GameObjects.GameObject#destroy
      * @since 3.0.0
-     * 
-     * @param {boolean} [fromScene=false] - Is this Game Object being destroyed as the result of a Scene shutdown?
      */
-    destroy: function (fromScene)
+    destroy: function ()
     {
-        if (fromScene === undefined) { fromScene = false; }
-
-        //  This Game Object has already been destroyed
+        //  This Game Object had already been destroyed
         if (!this.scene || this.ignoreDestroy)
         {
             return;
@@ -17001,11 +16415,8 @@ var GameObject = new Class({
 
         var sys = this.scene.sys;
 
-        if (!fromScene)
-        {
-            sys.displayList.remove(this);
-            sys.updateList.remove(this);
-        }
+        sys.displayList.remove(this);
+        sys.updateList.remove(this);
 
         if (this.input)
         {
@@ -17027,10 +16438,7 @@ var GameObject = new Class({
         }
 
         //  Tell the Scene to re-sort the children
-        if (!fromScene)
-        {
-            sys.queueDepthSort();
-        }
+        sys.queueDepthSort();
 
         this.active = false;
         this.visible = false;
@@ -17677,26 +17085,7 @@ var UpdateList = new Class({
      */
     shutdown: function ()
     {
-        var i = this._list.length;
-
-        while (i--)
-        {
-            this._list[i].destroy(true);
-        }
-
-        i = this._pendingRemoval.length;
-
-        while (i--)
-        {
-            this.this._pendingRemoval[i].destroy(true);
-        }
-
-        i = this._pendingInsertion.length;
-
-        while (i--)
-        {
-            this.this._pendingInsertion[i].destroy(true);
-        }
+        this.removeAll();
 
         this._list.length = 0;
         this._pendingRemoval.length = 0;
@@ -20467,14 +19856,12 @@ var Pipeline = {
      * @webglOnly
      * @since 3.0.0
      *
-     * @param {string} [pipelineName=TextureTintPipeline] - The name of the pipeline to set on this Game Object. Defaults to the Texture Tint Pipeline.
+     * @param {string} pipelineName - The name of the pipeline to set on this Game Object.
      *
      * @return {boolean} `true` if the pipeline was set successfully, otherwise `false`.
      */
     initPipeline: function (pipelineName)
     {
-        if (pipelineName === undefined) { pipelineName = 'TextureTintPipeline'; }
-
         var renderer = this.scene.sys.game.renderer;
 
         if (renderer && renderer.gl && renderer.hasPipeline(pipelineName))
@@ -23444,7 +22831,7 @@ var Graphics = new Class({
         GameObject.call(this, scene, 'Graphics');
 
         this.setPosition(x, y);
-        this.initPipeline();
+        this.initPipeline('TextureTintPipeline');
 
         /**
          * The horizontal display origin of the Graphics.
@@ -24882,10 +24269,7 @@ var GraphicsCanvasRenderer = function (renderer, src, interpolationPercentage, c
     var green = 0;
     var blue = 0;
 
-    ctx.save();
-
-    //  Reset any currently active paths
-    ctx.beginPath();
+    ctx.fillStyle = '#fff';
 
     for (var index = 0; index < commandBufferLength; ++index)
     {
@@ -25677,7 +25061,7 @@ var Image = new Class({
         this.setPosition(x, y);
         this.setSizeToFrame();
         this.setOriginFromFrame();
-        this.initPipeline();
+        this.initPipeline('TextureTintPipeline');
     }
 
 });
@@ -26011,7 +25395,7 @@ var Sprite = new Class({
         this.setPosition(x, y);
         this.setSizeToFrame();
         this.setOriginFromFrame();
-        this.initPipeline();
+        this.initPipeline('TextureTintPipeline');
     },
 
     /**
@@ -26366,12 +25750,17 @@ var GetTextSize = function (text, size, lines)
 
     var lineHeight = size.fontSize + style.strokeThickness;
     var height = lineHeight * drawnLines;
-    var lineSpacing = text.lineSpacing;
+    var lineSpacing = text._lineSpacing || 0;
+
+    if (lineSpacing < 0 && Math.abs(lineSpacing) > lineHeight)
+    {
+        lineSpacing = -lineHeight;
+    }
 
     //  Adjust for line spacing
-    if (lines.length > 1)
+    if (lineSpacing !== 0)
     {
-        height += lineSpacing * (lines.length - 1);
+        height += (lineSpacing > 0) ? lineSpacing * lines.length : lineSpacing * (lines.length - 1);
     }
 
     return {
@@ -26860,7 +26249,7 @@ var TextStyle = new Class({
         this._font;
 
         //  Set to defaults + user style
-        this.setStyle(style, false, true);
+        this.setStyle(style, false);
 
         var metrics = GetValue(style, 'metrics', false);
 
@@ -26897,14 +26286,12 @@ var TextStyle = new Class({
      *
      * @param {object} style - The style settings to set.
      * @param {boolean} [updateText=true] - Whether to update the text immediately.
-     * @param {boolean} [setDefaults=false] - Use the default values is not set, or the local values.
      *
      * @return {Phaser.GameObjects.Text} The parent Text object.
      */
-    setStyle: function (style, updateText, setDefaults)
+    setStyle: function (style, updateText)
     {
         if (updateText === undefined) { updateText = true; }
-        if (setDefaults === undefined) { setDefaults = false; }
 
         //  Avoid type mutation
         if (style && style.hasOwnProperty('fontSize') && typeof style.fontSize === 'number')
@@ -26914,16 +26301,14 @@ var TextStyle = new Class({
 
         for (var key in propertyMap)
         {
-            var value = (setDefaults) ? propertyMap[key][1] : this[key];
-
             if (key === 'wordWrapCallback' || key === 'wordWrapCallbackScope')
             {
                 // Callback & scope should be set without processing the values
-                this[key] = GetValue(style, propertyMap[key][0], value);
+                this[key] = GetValue(style, propertyMap[key][0], propertyMap[key][1]);
             }
             else
             {
-                this[key] = GetAdvancedValue(style, propertyMap[key][0], value);
+                this[key] = GetAdvancedValue(style, propertyMap[key][0], propertyMap[key][1]);
             }
         }
 
@@ -26932,7 +26317,7 @@ var TextStyle = new Class({
 
         if (font === null)
         {
-            this._font = [ this.fontStyle, this.fontSize, this.fontFamily ].join(' ').trim();
+            this._font = [ this.fontStyle, this.fontSize, this.fontFamily ].join(' ');
         }
         else
         {
@@ -27033,7 +26418,7 @@ var TextStyle = new Class({
     {
         if (recalculateMetrics)
         {
-            this._font = [ this.fontStyle, this.fontSize, this.fontFamily ].join(' ').trim();
+            this._font = [ this.fontStyle, this.fontSize, this.fontFamily ].join(' ');
 
             this.metrics = MeasureText(this);
         }
@@ -27659,7 +27044,7 @@ var Text = new Class({
 
         this.setPosition(x, y);
         this.setOrigin(0, 0);
-        this.initPipeline();
+        this.initPipeline('TextureTintPipeline');
 
         /**
          * The canvas element that the text is rendered to.
@@ -27752,20 +27137,6 @@ var Text = new Class({
         this.height = 1;
 
         /**
-         * The line spacing value.
-         * This value is added to the font height to calculate the overall line height.
-         * Only has an effect if this Text object contains multiple lines of text.
-         * 
-         * If you update this property directly, instead of using the `setLineSpacing` method, then
-         * be sure to call `updateText` after, or you won't see the change reflected in the Text object.
-         *
-         * @name Phaser.GameObjects.Text#lineSpacing
-         * @type {number}
-         * @since 3.13.0
-         */
-        this.lineSpacing = 0;
-
-        /**
          * Whether the text or its settings have changed and need updating.
          *
          * @name Phaser.GameObjects.Text#dirty
@@ -27800,6 +27171,15 @@ var Text = new Class({
         //  Set the resolution
         this.frame.source.resolution = this.style.resolution;
 
+        if (this.renderer && this.renderer.gl)
+        {
+            //  Clear the default 1x1 glTexture, as we override it later
+
+            this.renderer.deleteTexture(this.frame.source.glTexture);
+
+            this.frame.source.glTexture = null;
+        }
+
         this.initRTL();
 
         if (style && style.padding)
@@ -27809,7 +27189,7 @@ var Text = new Class({
 
         if (style && style.lineSpacing)
         {
-            this.lineSpacing = style.lineSpacing;
+            this._lineSpacing = style.lineSpacing;
         }
 
         this.setText(text);
@@ -28479,26 +27859,6 @@ var Text = new Class({
     },
 
     /**
-     * Sets the line spacing value.
-     *
-     * This value is _added_ to the height of the font when calculating the overall line height.
-     * This only has an effect if this Text object consists of multiple lines of text.
-     *
-     * @method Phaser.GameObjects.Text#setLineSpacing
-     * @since 3.13.0
-     *
-     * @param {number} value - The amount to add to the font height to achieve the overall line height.
-     *
-     * @return {Phaser.GameObjects.Text} This Text object.
-     */
-    setLineSpacing: function (value)
-    {
-        this.lineSpacing = value;
-
-        return this.updateText();
-    },
-
-    /**
      * Set the text padding.
      *
      * 'left' can be an object.
@@ -28716,7 +28076,6 @@ var Text = new Class({
         if (this.renderer.gl)
         {
             this.frame.source.glTexture = this.renderer.canvasToTexture(canvas, this.frame.source.glTexture);
-
             this.frame.glTexture = this.frame.source.glTexture;
         }
 
@@ -34992,33 +34351,6 @@ var InputPlugin = new Class({
          */
         this._pollTimer = 0;
 
-        var _eventData = { cancelled: false };
-
-        /**
-         * Internal event propagation callback container.
-         *
-         * @name Phaser.Input.InputPlugin#_eventContainer
-         * @type {object}
-         * @private
-         * @since 3.13.0
-         */
-        this._eventContainer = {
-            stopPropagation: function ()
-            {
-                _eventData.cancelled = true;
-            }
-        };
-
-        /**
-         * Internal event propagation data object.
-         *
-         * @name Phaser.Input.InputPlugin#_eventData
-         * @type {object}
-         * @private
-         * @since 3.13.0
-         */
-        this._eventData = _eventData;
-
         /**
          * The distance, in pixels, a pointer has to move while being held down, before it thinks it is being dragged.
          *
@@ -35545,15 +34877,12 @@ var InputPlugin = new Class({
      */
     processDownEvents: function (pointer)
     {
-        var total = 0;
         var currentlyOver = this._temp;
 
-        var _eventData = this._eventData;
-        var _eventContainer = this._eventContainer;
+        //  Contains ALL Game Objects currently over in the array
+        this.emit('pointerdown', pointer, currentlyOver);
 
-        _eventData.cancelled = false;
-
-        var aborted = false;
+        var total = 0;
 
         //  Go through all objects the pointer was over and fire their events / callbacks
         for (var i = 0; i < currentlyOver.length; i++)
@@ -35567,27 +34896,9 @@ var InputPlugin = new Class({
 
             total++;
 
-            gameObject.emit('pointerdown', pointer, gameObject.input.localX, gameObject.input.localY, _eventContainer);
+            gameObject.emit('pointerdown', pointer, gameObject.input.localX, gameObject.input.localY, pointer.camera);
 
-            if (_eventData.cancelled)
-            {
-                aborted = true;
-                break;
-            }
-
-            this.emit('gameobjectdown', pointer, gameObject, _eventContainer);
-
-            if (_eventData.cancelled)
-            {
-                aborted = true;
-                break;
-            }
-        }
-
-        //  Contains ALL Game Objects currently over in the array
-        if (!aborted)
-        {
-            this.emit('pointerdown', pointer, currentlyOver);
+            this.emit('gameobjectdown', pointer, gameObject);
         }
 
         return total;
@@ -35874,15 +35185,11 @@ var InputPlugin = new Class({
      */
     processMoveEvents: function (pointer)
     {
-        var total = 0;
         var currentlyOver = this._temp;
 
-        var _eventData = this._eventData;
-        var _eventContainer = this._eventContainer;
+        this.emit('pointermove', pointer, currentlyOver);
 
-        _eventData.cancelled = false;
-
-        var aborted = false;
+        var total = 0;
 
         //  Go through all objects the pointer was over and fire their events / callbacks
         for (var i = 0; i < currentlyOver.length; i++)
@@ -35896,31 +35203,14 @@ var InputPlugin = new Class({
 
             total++;
 
-            gameObject.emit('pointermove', pointer, gameObject.input.localX, gameObject.input.localY, _eventContainer);
+            gameObject.emit('pointermove', pointer, gameObject.input.localX, gameObject.input.localY);
 
-            if (_eventData.cancelled)
-            {
-                aborted = true;
-                break;
-            }
-
-            this.emit('gameobjectmove', pointer, gameObject, _eventContainer);
-
-            if (_eventData.cancelled)
-            {
-                aborted = true;
-                break;
-            }
+            this.emit('gameobjectmove', pointer, gameObject);
 
             if (this.topOnly)
             {
                 break;
             }
-        }
-
-        if (!aborted)
-        {
-            this.emit('pointermove', pointer, currentlyOver);
         }
 
         return total;
@@ -35991,16 +35281,11 @@ var InputPlugin = new Class({
 
         var totalInteracted = 0;
 
-        var _eventData = this._eventData;
-        var _eventContainer = this._eventContainer;
-
-        _eventData.cancelled = false;
-
-        var aborted = false;
-
         if (total > 0)
         {
             this.sortGameObjects(justOut);
+
+            this.emit('pointerout', pointer, justOut);
 
             //  Call onOut for everything in the justOut array
             for (i = 0; i < total; i++)
@@ -36012,43 +35297,24 @@ var InputPlugin = new Class({
                     continue;
                 }
 
-                gameObject.emit('pointerout', pointer, _eventContainer);
+                this.emit('gameobjectout', pointer, gameObject);
+
+                gameObject.emit('pointerout', pointer);
 
                 manager.resetCursor(gameObject.input);
 
                 totalInteracted++;
-
-                if (_eventData.cancelled)
-                {
-                    aborted = true;
-                    break;
-                }
-
-                this.emit('gameobjectout', pointer, gameObject, _eventContainer);
-
-                if (_eventData.cancelled)
-                {
-                    aborted = true;
-                    break;
-                }
-            }
-
-            if (!aborted)
-            {
-                this.emit('pointerout', pointer, justOut);
             }
         }
 
         //  Process the Just Over objects
         total = justOver.length;
 
-        _eventData.cancelled = false;
-
-        aborted = false;
-
         if (total > 0)
         {
             this.sortGameObjects(justOver);
+
+            this.emit('pointerover', pointer, justOver);
 
             //  Call onOver for everything in the justOver array
             for (i = 0; i < total; i++)
@@ -36060,30 +35326,13 @@ var InputPlugin = new Class({
                     continue;
                 }
 
-                gameObject.emit('pointerover', pointer, gameObject.input.localX, gameObject.input.localY, _eventContainer);
+                this.emit('gameobjectover', pointer, gameObject);
+
+                gameObject.emit('pointerover', pointer, gameObject.input.localX, gameObject.input.localY);
 
                 manager.setCursor(gameObject.input);
 
                 totalInteracted++;
-
-                if (_eventData.cancelled)
-                {
-                    aborted = true;
-                    break;
-                }
-
-                this.emit('gameobjectover', pointer, gameObject, _eventContainer);
-
-                if (_eventData.cancelled)
-                {
-                    aborted = true;
-                    break;
-                }
-            }
-
-            if (!aborted)
-            {
-                this.emit('pointerover', pointer, justOver);
             }
         }
 
@@ -36111,12 +35360,8 @@ var InputPlugin = new Class({
     {
         var currentlyOver = this._temp;
 
-        var _eventData = this._eventData;
-        var _eventContainer = this._eventContainer;
-
-        _eventData.cancelled = false;
-
-        var aborted = false;
+        //  Contains ALL Game Objects currently up in the array
+        this.emit('pointerup', pointer, currentlyOver);
 
         //  Go through all objects the pointer was over and fire their events / callbacks
         for (var i = 0; i < currentlyOver.length; i++)
@@ -36130,27 +35375,9 @@ var InputPlugin = new Class({
 
             //  pointerupoutside
 
-            gameObject.emit('pointerup', pointer, gameObject.input.localX, gameObject.input.localY, _eventContainer);
+            gameObject.emit('pointerup', pointer, gameObject.input.localX, gameObject.input.localY);
 
-            if (_eventData.cancelled)
-            {
-                aborted = true;
-                break;
-            }
-
-            this.emit('gameobjectup', pointer, gameObject, _eventContainer);
-
-            if (_eventData.cancelled)
-            {
-                aborted = true;
-                break;
-            }
-        }
-
-        if (!aborted)
-        {
-            //  Contains ALL Game Objects currently up in the array
-            this.emit('pointerup', pointer, currentlyOver);
+            this.emit('gameobjectup', pointer, gameObject);
         }
 
         return currentlyOver.length;
@@ -37413,9 +36640,9 @@ module.exports = InputPluginCache;
  */
 
 var Class = __webpack_require__(/*! ../utils/Class */ "./utils/Class.js");
-var Distance = __webpack_require__(/*! ../math/distance/DistanceBetween */ "./math/distance/DistanceBetween.js");
 var SmoothStepInterpolation = __webpack_require__(/*! ../math/interpolation/SmoothStepInterpolation */ "./math/interpolation/SmoothStepInterpolation.js");
 var Vector2 = __webpack_require__(/*! ../math/Vector2 */ "./math/Vector2.js");
+
 
 /**
  * @classdesc
@@ -38068,20 +37295,6 @@ var Pointer = new Class({
     forwardButtonDown: function ()
     {
         return (this.buttons & 16);
-    },
-
-    /**
-     * Returns the distance between the Pointer's current position and where it was
-     * first pressed down (the `downX` and `downY` properties)
-     *
-     * @method Phaser.Input.Pointer#getDistance
-     * @since 3.13.0
-     *
-     * @return {number} The distance the Pointer has moved since being pressed down.
-     */
-    getDistance: function ()
-    {
-        return Distance(this.downX, this.downY, this.x, this.y);
     },
 
     /**
@@ -40582,7 +39795,6 @@ var KeyboardPlugin = new Class({
             for (var i = 0; i < keys.length; i++)
             {
                 var currentKey = keys[i].trim();
-
                 if (currentKey)
                 {
                     output[currentKey] = this.addKey(currentKey);
@@ -55329,7 +54541,6 @@ module.exports = GetBlendModes;
  * @since 3.12.0
  *
  * @param {Phaser.Renderer.Canvas.CanvasRenderer} renderer - A reference to the current active Canvas renderer.
- * @param {CanvasRenderingContext2D} ctx - The canvas context to set the transform on.
  * @param {Phaser.GameObjects.GameObject} src - The Game Object being rendered. Can be any type that extends the base class.
  * @param {Phaser.Cameras.Scene2D.Camera} camera - The Camera that is rendering the Game Object.
  * @param {Phaser.GameObjects.Components.TransformMatrix} [parentMatrix] - A parent transform matrix to apply to the Game Object before rendering.
@@ -55738,12 +54949,12 @@ var Utils = __webpack_require__(/*! ./Utils */ "./renderer/webgl/Utils.js");
 
 /**
  * @classdesc
- * WebGLPipeline is a class that describes the way elements will be rendererd
- * in WebGL, specially focused on batching vertices (batching is not provided).
- * Pipelines are mostly used for describing 2D rendering passes but it's
- * flexible enough to be used for any type of rendering including 3D.
+ * WebGLPipeline is a class that describes the way elements will be rendererd 
+ * in WebGL, specially focused on batching vertices (batching is not provided). 
+ * Pipelines are mostly used for describing 2D rendering passes but it's 
+ * flexible enough to be used for any type of rendering including 3D. 
  * Internally WebGLPipeline will handle things like compiling shaders,
- * creating vertex buffers, assigning primitive topology and binding
+ * creating vertex buffers, assigning primitive topology and binding 
  * vertex attributes.
  *
  * The config properties are:
@@ -55758,7 +54969,7 @@ var Utils = __webpack_require__(/*! ./Utils */ "./renderer/webgl/Utils.js");
  * - vertexSize: The size of a single vertex in bytes.
  * - vertices: An optional buffer of vertices
  * - attributes: An array describing the vertex attributes
- *
+ *  
  * The vertex attributes properties are:
  * - name : String - Name of the attribute in the vertex shader
  * - size : integer - How many components describe the attribute. For ex: vec3 = size of 3, float = size of 1
@@ -55968,7 +55179,7 @@ var WebGLPipeline = new Class({
 
     /**
      * Called when the Game has fully booted and the Renderer has finished setting up.
-     *
+     * 
      * By this stage all Game level systems are now in place and you can perform any final
      * tasks that the pipeline may need that relied on game systems such as the Texture Manager.
      *
@@ -55991,7 +55202,7 @@ var WebGLPipeline = new Class({
      * @param {boolean} normalized - Is the value normalized to a range
      * @param {integer} offset - Byte offset to the beginning of the first element in the vertex
      *
-     * @return {this} This WebGLPipeline instance.
+     * @return {Phaser.Renderer.WebGL.WebGLPipeline} [description]
      */
     addAttribute: function (name, size, type, normalized, offset)
     {
@@ -56029,13 +55240,12 @@ var WebGLPipeline = new Class({
      * @param {number} height - [description]
      * @param {number} resolution - [description]
      *
-     * @return {this} This WebGLPipeline instance.
+     * @return {Phaser.Renderer.WebGL.WebGLPipeline} [description]
      */
     resize: function (width, height, resolution)
     {
         this.width = width * resolution;
         this.height = height * resolution;
-
         return this;
     },
 
@@ -56045,7 +55255,7 @@ var WebGLPipeline = new Class({
      * @method Phaser.Renderer.WebGL.WebGLPipeline#bind
      * @since 3.0.0
      *
-     * @return {this} This WebGLPipeline instance.
+     * @return {Phaser.Renderer.WebGL.WebGLPipeline} [description]
      */
     bind: function ()
     {
@@ -56084,7 +55294,7 @@ var WebGLPipeline = new Class({
      * @method Phaser.Renderer.WebGL.WebGLPipeline#onBind
      * @since 3.0.0
      *
-     * @return {this} This WebGLPipeline instance.
+     * @return {Phaser.Renderer.WebGL.WebGLPipeline} [description]
      */
     onBind: function ()
     {
@@ -56098,7 +55308,7 @@ var WebGLPipeline = new Class({
      * @method Phaser.Renderer.WebGL.WebGLPipeline#onPreRender
      * @since 3.0.0
      *
-     * @return {this} This WebGLPipeline instance.
+     * @return {Phaser.Renderer.WebGL.WebGLPipeline} [description]
      */
     onPreRender: function ()
     {
@@ -56115,7 +55325,7 @@ var WebGLPipeline = new Class({
      * @param {Phaser.Scene} scene - [description]
      * @param {Phaser.Cameras.Scene2D.Camera} camera - [description]
      *
-     * @return {this} This WebGLPipeline instance.
+     * @return {Phaser.Renderer.WebGL.WebGLPipeline} [description]
      */
     onRender: function ()
     {
@@ -56129,7 +55339,7 @@ var WebGLPipeline = new Class({
      * @method Phaser.Renderer.WebGL.WebGLPipeline#onPostRender
      * @since 3.0.0
      *
-     * @return {this} This WebGLPipeline instance.
+     * @return {Phaser.Renderer.WebGL.WebGLPipeline} [description]
      */
     onPostRender: function ()
     {
@@ -56144,7 +55354,7 @@ var WebGLPipeline = new Class({
      * @method Phaser.Renderer.WebGL.WebGLPipeline#flush
      * @since 3.0.0
      *
-     * @return {this} This WebGLPipeline instance.
+     * @return {Phaser.Renderer.WebGL.WebGLPipeline} [description]
      */
     flush: function ()
     {
@@ -56178,7 +55388,7 @@ var WebGLPipeline = new Class({
      * @method Phaser.Renderer.WebGL.WebGLPipeline#destroy
      * @since 3.0.0
      *
-     * @return {this} This WebGLPipeline instance.
+     * @return {Phaser.Renderer.WebGL.WebGLPipeline} [description]
      */
     destroy: function ()
     {
@@ -56200,10 +55410,10 @@ var WebGLPipeline = new Class({
      * @method Phaser.Renderer.WebGL.WebGLPipeline#setFloat1
      * @since 3.2.0
      *
-     * @param {string} name - The name of the uniform to look-up and modify.
+     * @param {string} name - [description]
      * @param {number} x - [description]
      *
-     * @return {this} This WebGLPipeline instance.
+     * @return {Phaser.Renderer.WebGL.WebGLPipeline} [description]
      */
     setFloat1: function (name, x)
     {
@@ -56218,11 +55428,11 @@ var WebGLPipeline = new Class({
      * @method Phaser.Renderer.WebGL.WebGLPipeline#setFloat2
      * @since 3.2.0
      *
-     * @param {string} name - The name of the uniform to look-up and modify.
+     * @param {string} name - [description]
      * @param {number} x - [description]
      * @param {number} y - [description]
      *
-     * @return {this} This WebGLPipeline instance.
+     * @return {Phaser.Renderer.WebGL.WebGLPipeline} [description]
      */
     setFloat2: function (name, x, y)
     {
@@ -56237,12 +55447,12 @@ var WebGLPipeline = new Class({
      * @method Phaser.Renderer.WebGL.WebGLPipeline#setFloat3
      * @since 3.2.0
      *
-     * @param {string} name - The name of the uniform to look-up and modify.
+     * @param {string} name - [description]
      * @param {number} x - [description]
      * @param {number} y - [description]
      * @param {number} z - [description]
      *
-     * @return {this} This WebGLPipeline instance.
+     * @return {Phaser.Renderer.WebGL.WebGLPipeline} [description]
      */
     setFloat3: function (name, x, y, z)
     {
@@ -56257,13 +55467,13 @@ var WebGLPipeline = new Class({
      * @method Phaser.Renderer.WebGL.WebGLPipeline#setFloat4
      * @since 3.2.0
      *
-     * @param {string} name - The name of the uniform to look-up and modify.
+     * @param {string} name - Name of the uniform
      * @param {number} x - X component of the uniform
      * @param {number} y - Y component of the uniform
      * @param {number} z - Z component of the uniform
      * @param {number} w - W component of the uniform
      *
-     * @return {this} This WebGLPipeline instance.
+     * @return {Phaser.Renderer.WebGL.WebGLPipeline} [description]
      */
     setFloat4: function (name, x, y, z, w)
     {
@@ -56275,85 +55485,13 @@ var WebGLPipeline = new Class({
     /**
      * Set a uniform value of the current pipeline program.
      *
-     * @method Phaser.Renderer.WebGL.WebGLPipeline#setFloat1v
-     * @since 3.13.0
-     *
-     * @param {string} name - The name of the uniform to look-up and modify.
-     * @param {Float32Array} arr - The new value to be used for the uniform variable.
-     *
-     * @return {this} This WebGLPipeline instance.
-     */
-    setFloat1v: function (name, arr)
-    {
-        this.renderer.setFloat1v(this.program, name, arr);
-
-        return this;
-    },
-
-    /**
-     * Set a uniform value of the current pipeline program.
-     *
-     * @method Phaser.Renderer.WebGL.WebGLPipeline#setFloat2v
-     * @since 3.13.0
-     *
-     * @param {string} name - The name of the uniform to look-up and modify.
-     * @param {Float32Array} arr - The new value to be used for the uniform variable.
-     *
-     * @return {this} This WebGLPipeline instance.
-     */
-    setFloat2v: function (name, arr)
-    {
-        this.renderer.setFloat2v(this.program, name, arr);
-
-        return this;
-    },
-
-    /**
-     * Set a uniform value of the current pipeline program.
-     *
-     * @method Phaser.Renderer.WebGL.WebGLPipeline#setFloat3v
-     * @since 3.13.0
-     *
-     * @param {string} name - The name of the uniform to look-up and modify.
-     * @param {Float32Array} arr - The new value to be used for the uniform variable.
-     *
-     * @return {this} This WebGLPipeline instance.
-     */
-    setFloat3v: function (name, arr)
-    {
-        this.renderer.setFloat3v(this.program, name, arr);
-
-        return this;
-    },
-
-    /**
-     * Set a uniform value of the current pipeline program.
-     *
-     * @method Phaser.Renderer.WebGL.WebGLPipeline#setFloat4v
-     * @since 3.13.0
-     *
-     * @param {string} name - The name of the uniform to look-up and modify.
-     * @param {Float32Array} arr - The new value to be used for the uniform variable.
-     *
-     * @return {this} This WebGLPipeline instance.
-     */
-    setFloat4v: function (name, arr)
-    {
-        this.renderer.setFloat4v(this.program, name, arr);
-
-        return this;
-    },
-
-    /**
-     * Set a uniform value of the current pipeline program.
-     *
      * @method Phaser.Renderer.WebGL.WebGLPipeline#setInt1
      * @since 3.2.0
      *
-     * @param {string} name - The name of the uniform to look-up and modify.
+     * @param {string} name - [description]
      * @param {integer} x - [description]
      *
-     * @return {this} This WebGLPipeline instance.
+     * @return {Phaser.Renderer.WebGL.WebGLPipeline} [description]
      */
     setInt1: function (name, x)
     {
@@ -56368,11 +55506,11 @@ var WebGLPipeline = new Class({
      * @method Phaser.Renderer.WebGL.WebGLPipeline#setInt2
      * @since 3.2.0
      *
-     * @param {string} name - The name of the uniform to look-up and modify.
+     * @param {string} name - [description]
      * @param {integer} x - [description]
      * @param {integer} y - [description]
      *
-     * @return {this} This WebGLPipeline instance.
+     * @return {Phaser.Renderer.WebGL.WebGLPipeline} [description]
      */
     setInt2: function (name, x, y)
     {
@@ -56387,12 +55525,12 @@ var WebGLPipeline = new Class({
      * @method Phaser.Renderer.WebGL.WebGLPipeline#setInt3
      * @since 3.2.0
      *
-     * @param {string} name - The name of the uniform to look-up and modify.
+     * @param {string} name - [description]
      * @param {integer} x - [description]
      * @param {integer} y - [description]
      * @param {integer} z - [description]
      *
-     * @return {this} This WebGLPipeline instance.
+     * @return {Phaser.Renderer.WebGL.WebGLPipeline} [description]
      */
     setInt3: function (name, x, y, z)
     {
@@ -56407,13 +55545,13 @@ var WebGLPipeline = new Class({
      * @method Phaser.Renderer.WebGL.WebGLPipeline#setInt4
      * @since 3.2.0
      *
-     * @param {string} name - The name of the uniform to look-up and modify.
+     * @param {string} name - Name of the uniform
      * @param {integer} x - X component of the uniform
      * @param {integer} y - Y component of the uniform
      * @param {integer} z - Z component of the uniform
      * @param {integer} w - W component of the uniform
      *
-     * @return {this} This WebGLPipeline instance.
+     * @return {Phaser.Renderer.WebGL.WebGLPipeline} [description]
      */
     setInt4: function (name, x, y, z, w)
     {
@@ -56424,15 +55562,16 @@ var WebGLPipeline = new Class({
 
     /**
      * Set a uniform value of the current pipeline program.
+     * [description]
      *
      * @method Phaser.Renderer.WebGL.WebGLPipeline#setMatrix2
      * @since 3.2.0
      *
-     * @param {string} name - The name of the uniform to look-up and modify.
+     * @param {string} name - [description]
      * @param {boolean} transpose - [description]
      * @param {Float32Array} matrix - [description]
      *
-     * @return {this} This WebGLPipeline instance.
+     * @return {Phaser.Renderer.WebGL.WebGLPipeline} [description]
      */
     setMatrix2: function (name, transpose, matrix)
     {
@@ -56443,15 +55582,17 @@ var WebGLPipeline = new Class({
 
     /**
      * Set a uniform value of the current pipeline program.
+     * [description]
+     * [description]
      *
      * @method Phaser.Renderer.WebGL.WebGLPipeline#setMatrix3
      * @since 3.2.0
      *
-     * @param {string} name - The name of the uniform to look-up and modify.
+     * @param {string} name - [description]
      * @param {boolean} transpose - [description]
      * @param {Float32Array} matrix - [description]
      *
-     * @return {this} This WebGLPipeline instance.
+     * @return {Phaser.Renderer.WebGL.WebGLPipeline} [description]
      */
     setMatrix3: function (name, transpose, matrix)
     {
@@ -56466,11 +55607,11 @@ var WebGLPipeline = new Class({
      * @method Phaser.Renderer.WebGL.WebGLPipeline#setMatrix4
      * @since 3.2.0
      *
-     * @param {string} name - The name of the uniform to look-up and modify.
+     * @param {string} name - Name of the uniform
      * @param {boolean} transpose - Should the matrix be transpose
      * @param {Float32Array} matrix - Matrix data
      *
-     * @return {this} This WebGLPipeline instance.
+     * @return {Phaser.Renderer.WebGL.WebGLPipeline} [description]
      */
     setMatrix4: function (name, transpose, matrix)
     {
@@ -56535,7 +55676,7 @@ var TextureTintPipeline = __webpack_require__(/*! ./pipelines/TextureTintPipelin
  * any context change that happens for WebGL rendering inside of Phaser. This means
  * if raw webgl functions are called outside the WebGLRenderer of the Phaser WebGL
  * rendering ecosystem they might pollute the current WebGLRenderingContext state producing
- * unexpected behavior. It's recommended that WebGL interaction is done through
+ * unexpected behavior. It's recommended that WebGL interaction is done through 
  * WebGLRenderer and/or WebGLPipeline.
  *
  * @class WebGLRenderer
@@ -56790,7 +55931,7 @@ var WebGLRenderer = new Class({
          * @default false
          * @since 3.0.0
          */
-        this.currentScissorEnabled = true;
+        this.currentScissorEnabled = false;
 
         /**
          * Stores the current scissor data
@@ -57030,13 +56171,13 @@ var WebGLRenderer = new Class({
         this.compression.ETC1 = gl.getExtension(extString + 'etc1') || gl.getExtension(wkExtString + 'etc1');
         this.compression.PVRTC = gl.getExtension(extString + 'pvrtc') || gl.getExtension(wkExtString + 'pvrtc');
         this.compression.S3TC = gl.getExtension(extString + 's3tc') || gl.getExtension(wkExtString + 's3tc');
-
+        
         this.supportedExtensions = exts;
 
         // Setup initial WebGL state
         gl.disable(gl.DEPTH_TEST);
         gl.disable(gl.CULL_FACE);
-
+        
         // gl.disable(gl.SCISSOR_TEST);
 
         gl.enable(gl.BLEND);
@@ -57121,7 +56262,7 @@ var WebGLRenderer = new Class({
         {
             pipelines[pipelineName].resize(width, height, resolution);
         }
-
+        
         this.drawingBufferHeight = gl.drawingBufferHeight;
 
         this.defaultCamera.setSize(width, height);
@@ -57312,7 +56453,7 @@ var WebGLRenderer = new Class({
         var scissorStack = this.scissorStack;
 
         var scissor = [ x, y, w, h ];
-
+        
         scissorStack.push(scissor);
 
         this.setScissor(x, y, w, h);
@@ -57363,7 +56504,7 @@ var WebGLRenderer = new Class({
         var scissorStack = this.scissorStack;
 
         var scissor = scissorStack.pop();
-
+       
         this.setScissor(scissor[0], scissor[1], scissor[2], scissor[3]);
 
         this.currentScissor = scissor;
@@ -57510,7 +56651,7 @@ var WebGLRenderer = new Class({
      * @method Phaser.Renderer.WebGL.WebGLRenderer#setBlankTexture
      * @private
      * @since 3.12.0
-     *
+     * 
      * @param {boolean} [force=false] - Force a blank texture set, regardless of what's already bound?
      *
      * @return {Phaser.Renderer.WebGL.WebGLRenderer} This WebGL Renderer.
@@ -57526,7 +56667,7 @@ var WebGLRenderer = new Class({
     },
 
     /**
-     * Binds a texture at a texture unit. If a texture is already
+     * Binds a texture at a texture unit. If a texture is already 
      * bound to that unit it will force a flush on the current pipeline.
      *
      * @method Phaser.Renderer.WebGL.WebGLRenderer#setTexture2D
@@ -57751,10 +56892,10 @@ var WebGLRenderer = new Class({
      */
     createTexture2D: function (mipLevel, minFilter, magFilter, wrapT, wrapS, format, pixels, width, height, pma)
     {
-        pma = (pma === undefined || pma === null) ? true : pma;
-
         var gl = this.gl;
         var texture = gl.createTexture();
+
+        pma = (pma === undefined || pma === null) ? true : pma;
 
         this.setTexture2D(texture, 0);
 
@@ -57795,7 +56936,7 @@ var WebGLRenderer = new Class({
      *
      * @param {integer} width - Width in pixels of the framebuffer
      * @param {integer} height - Height in pixels of the framebuffer
-     * @param {WebGLTexture} renderTexture - The color texture to where the color pixels are written
+     * @param {WebGLTexture} renderTexture - The color texture to where the color pixels are written 
      * @param {boolean} addDepthStencilBuffer - Indicates if the current framebuffer support depth and stencil buffers
      *
      * @return {WebGLFramebuffer} Raw WebGLFramebuffer
@@ -58042,9 +57183,9 @@ var WebGLRenderer = new Class({
             this.setFramebuffer(camera.framebuffer);
 
             var gl = this.gl;
-
+        
             gl.clearColor(0, 0, 0, 0);
-
+    
             gl.clear(gl.COLOR_BUFFER_BIT);
 
             TextureTintPipeline.projOrtho(cx, cw + cx, cy, ch + cy, -1000, 1000);
@@ -58063,7 +57204,7 @@ var WebGLRenderer = new Class({
             this.pushScissor(cx, cy, cw, ch);
 
             TextureTintPipeline.drawFillRect(
-                cx, cy, cw , ch,
+                0, 0, cw + cx, ch + cy,
                 Utils.getTintFromFloats(color.redGL, color.greenGL, color.blueGL, 1),
                 color.alphaGL
             );
@@ -58106,7 +57247,7 @@ var WebGLRenderer = new Class({
             var getTint = Utils.getTintAppendFloatAlpha;
 
             var pipeline = (camera.pipeline) ? camera.pipeline : TextureTintPipeline;
-
+       
             pipeline.batchTexture(
                 camera,
                 camera.glTexture,
@@ -58290,33 +57431,44 @@ var WebGLRenderer = new Class({
     },
 
     /**
-     * Creates a WebGL Texture based on the given canvas element.
+     * [description]
      *
      * @method Phaser.Renderer.WebGL.WebGLRenderer#canvasToTexture
      * @since 3.0.0
      *
-     * @param {HTMLCanvasElement} srcCanvas - The Canvas element that will be used to populate the texture.
-     * @param {WebGLTexture} [dstTexture] - Is this going to replace an existing texture? If so, pass it here.
+     * @param {HTMLCanvasElement} srcCanvas - [description]
+     * @param {WebGLTexture} [dstTexture] - [description]
      *
-     * @return {WebGLTexture} The newly created WebGL Texture.
+     * @return {WebGLTexture} [description]
      */
     canvasToTexture: function (srcCanvas, dstTexture)
     {
         var gl = this.gl;
 
-        if (dstTexture)
+        if (!dstTexture)
         {
-            this.deleteTexture(dstTexture);
+            var wrapping = gl.CLAMP_TO_EDGE;
+
+            if (IsSizePowerOfTwo(srcCanvas.width, srcCanvas.height))
+            {
+                wrapping = gl.REPEAT;
+            }
+
+            dstTexture = this.createTexture2D(0, gl.NEAREST, gl.NEAREST, wrapping, wrapping, gl.RGBA, srcCanvas, srcCanvas.width, srcCanvas.height, true);
+        }
+        else
+        {
+            this.setTexture2D(dstTexture, 0);
+
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, srcCanvas);
+
+            dstTexture.width = srcCanvas.width;
+            dstTexture.height = srcCanvas.height;
+
+            this.setTexture2D(null, 0);
         }
 
-        var wrapping = gl.CLAMP_TO_EDGE;
-
-        if (IsSizePowerOfTwo(srcCanvas.width, srcCanvas.height))
-        {
-            wrapping = gl.REPEAT;
-        }
-
-        return this.createTexture2D(0, gl.NEAREST, gl.NEAREST, wrapping, wrapping, gl.RGBA, srcCanvas, srcCanvas.width, srcCanvas.height, true);
+        return dstTexture;
     },
 
     /**
@@ -58328,7 +57480,7 @@ var WebGLRenderer = new Class({
      * @param {integer} texture - [description]
      * @param {integer} filter - [description]
      *
-     * @return {this} This WebGL Renderer instance.
+     * @return {Phaser.Renderer.WebGL.WebGLRenderer} [description]
      */
     setTextureFilter: function (texture, filter)
     {
@@ -58351,11 +57503,11 @@ var WebGLRenderer = new Class({
      * @method Phaser.Renderer.WebGL.WebGLRenderer#setFloat1
      * @since 3.0.0
      *
-     * @param {WebGLProgram} program - The target WebGLProgram from which the uniform location will be looked-up.
-     * @param {string} name - The name of the uniform to look-up and modify.
+     * @param {WebGLProgram} program - [description]
+     * @param {string} name - [description]
      * @param {number} x - [description]
      *
-     * @return {this} This WebGL Renderer instance.
+     * @return {Phaser.Renderer.WebGL.WebGLRenderer} [description]
      */
     setFloat1: function (program, name, x)
     {
@@ -58372,12 +57524,12 @@ var WebGLRenderer = new Class({
      * @method Phaser.Renderer.WebGL.WebGLRenderer#setFloat2
      * @since 3.0.0
      *
-     * @param {WebGLProgram} program - The target WebGLProgram from which the uniform location will be looked-up.
-     * @param {string} name - The name of the uniform to look-up and modify.
+     * @param {WebGLProgram} program - [description]
+     * @param {string} name - [description]
      * @param {number} x - [description]
      * @param {number} y - [description]
      *
-     * @return {this} This WebGL Renderer instance.
+     * @return {Phaser.Renderer.WebGL.WebGLRenderer} [description]
      */
     setFloat2: function (program, name, x, y)
     {
@@ -58394,13 +57546,13 @@ var WebGLRenderer = new Class({
      * @method Phaser.Renderer.WebGL.WebGLRenderer#setFloat3
      * @since 3.0.0
      *
-     * @param {WebGLProgram} program - The target WebGLProgram from which the uniform location will be looked-up.
-     * @param {string} name - The name of the uniform to look-up and modify.
+     * @param {WebGLProgram} program - [description]
+     * @param {string} name - [description]
      * @param {number} x - [description]
      * @param {number} y - [description]
      * @param {number} z - [description]
      *
-     * @return {this} This WebGL Renderer instance.
+     * @return {Phaser.Renderer.WebGL.WebGLRenderer} [description]
      */
     setFloat3: function (program, name, x, y, z)
     {
@@ -58417,14 +57569,14 @@ var WebGLRenderer = new Class({
      * @method Phaser.Renderer.WebGL.WebGLRenderer#setFloat4
      * @since 3.0.0
      *
-     * @param {WebGLProgram} program - The target WebGLProgram from which the uniform location will be looked-up.
-     * @param {string} name - The name of the uniform to look-up and modify.
+     * @param {WebGLProgram} program - Target program
+     * @param {string} name - Name of the uniform
      * @param {number} x - X component
      * @param {number} y - Y component
      * @param {number} z - Z component
      * @param {number} w - W component
      *
-     * @return {this} This WebGL Renderer instance.
+     * @return {Phaser.Renderer.WebGL.WebGLRenderer} [description]
      */
     setFloat4: function (program, name, x, y, z, w)
     {
@@ -58436,101 +57588,16 @@ var WebGLRenderer = new Class({
     },
 
     /**
-     * Sets the value of a uniform variable in the given WebGLProgram.
-     *
-     * @method Phaser.Renderer.WebGL.WebGLRenderer#setFloat1v
-     * @since 3.13.0
-     *
-     * @param {WebGLProgram} program - The target WebGLProgram from which the uniform location will be looked-up.
-     * @param {string} name - The name of the uniform to look-up and modify.
-     * @param {Float32Array} arr - The new value to be used for the uniform variable.
-     *
-     * @return {this} This WebGL Renderer instance.
-     */
-    setFloat1v: function (program, name, arr)
-    {
-        this.setProgram(program);
-
-        this.gl.uniform1fv(this.gl.getUniformLocation(program, name), arr);
-
-        return this;
-    },
-
-    /**
-     * Sets the value of a uniform variable in the given WebGLProgram.
-     *
-     * @method Phaser.Renderer.WebGL.WebGLRenderer#setFloat2v
-     * @since 3.13.0
-     *
-     * @param {WebGLProgram} program - The target WebGLProgram from which the uniform location will be looked-up.
-     * @param {string} name - The name of the uniform to look-up and modify.
-     * @param {Float32Array} arr - The new value to be used for the uniform variable.
-     *
-     * @return {this} This WebGL Renderer instance.
-     */
-    setFloat2v: function (program, name, arr)
-    {
-        this.setProgram(program);
-
-        this.gl.uniform2fv(this.gl.getUniformLocation(program, name), arr);
-
-        return this;
-    },
-
-    /**
-     * Sets the value of a uniform variable in the given WebGLProgram.
-     *
-     * @method Phaser.Renderer.WebGL.WebGLRenderer#setFloat3v
-     * @since 3.13.0
-     *
-     * @param {WebGLProgram} program - The target WebGLProgram from which the uniform location will be looked-up.
-     * @param {string} name - The name of the uniform to look-up and modify.
-     * @param {Float32Array} arr - The new value to be used for the uniform variable.
-     *
-     * @return {this} This WebGL Renderer instance.
-     */
-    setFloat3v: function (program, name, arr)
-    {
-        this.setProgram(program);
-
-        this.gl.uniform3fv(this.gl.getUniformLocation(program, name), arr);
-
-        return this;
-    },
-
-    /**
-     * Sets the value of a uniform variable in the given WebGLProgram.
-     *
-     * @method Phaser.Renderer.WebGL.WebGLRenderer#setFloat4v
-     * @since 3.13.0
-     *
-     * @param {WebGLProgram} program - The target WebGLProgram from which the uniform location will be looked-up.
-     * @param {string} name - The name of the uniform to look-up and modify.
-     * @param {Float32Array} arr - The new value to be used for the uniform variable.
-     *
-     * @return {this} This WebGL Renderer instance.
-     */
-
-    setFloat4v: function (program, name, arr)
-    {
-        this.setProgram(program);
-
-        this.gl.uniform4fv(this.gl.getUniformLocation(program, name), arr);
-
-        return this;
-    },
-
-    /**
-     * Sets the value of a uniform variable in the given WebGLProgram.
+     * [description]
      *
      * @method Phaser.Renderer.WebGL.WebGLRenderer#setInt1
      * @since 3.0.0
      *
-     * @param {WebGLProgram} program - The target WebGLProgram from which the uniform location will be looked-up.
-     * @param {string} name - The name of the uniform to look-up and modify.
+     * @param {WebGLProgram} program - [description]
+     * @param {string} name - [description]
      * @param {integer} x - [description]
      *
-     * @return {this} This WebGL Renderer instance.
+     * @return {Phaser.Renderer.WebGL.WebGLRenderer} [description]
      */
     setInt1: function (program, name, x)
     {
@@ -58542,17 +57609,17 @@ var WebGLRenderer = new Class({
     },
 
     /**
-     * Sets the value of a uniform variable in the given WebGLProgram.
+     * [description]
      *
      * @method Phaser.Renderer.WebGL.WebGLRenderer#setInt2
      * @since 3.0.0
      *
-     * @param {WebGLProgram} program - The target WebGLProgram from which the uniform location will be looked-up.
-     * @param {string} name - The name of the uniform to look-up and modify.
+     * @param {WebGLProgram} program - [description]
+     * @param {string} name - [description]
      * @param {integer} x - [description]
      * @param {integer} y - [description]
      *
-     * @return {this} This WebGL Renderer instance.
+     * @return {Phaser.Renderer.WebGL.WebGLRenderer} [description]
      */
     setInt2: function (program, name, x, y)
     {
@@ -58564,18 +57631,18 @@ var WebGLRenderer = new Class({
     },
 
     /**
-     * Sets the value of a uniform variable in the given WebGLProgram.
+     * [description]
      *
      * @method Phaser.Renderer.WebGL.WebGLRenderer#setInt3
      * @since 3.0.0
      *
-     * @param {WebGLProgram} program - The target WebGLProgram from which the uniform location will be looked-up.
-     * @param {string} name - The name of the uniform to look-up and modify.
+     * @param {WebGLProgram} program - [description]
+     * @param {string} name - [description]
      * @param {integer} x - [description]
      * @param {integer} y - [description]
      * @param {integer} z - [description]
      *
-     * @return {this} This WebGL Renderer instance.
+     * @return {Phaser.Renderer.WebGL.WebGLRenderer} [description]
      */
     setInt3: function (program, name, x, y, z)
     {
@@ -58587,19 +57654,19 @@ var WebGLRenderer = new Class({
     },
 
     /**
-     * Sets the value of a uniform variable in the given WebGLProgram.
+     * Sets uniform of a WebGLProgram
      *
      * @method Phaser.Renderer.WebGL.WebGLRenderer#setInt4
      * @since 3.0.0
      *
-     * @param {WebGLProgram} program - The target WebGLProgram from which the uniform location will be looked-up.
-     * @param {string} name - The name of the uniform to look-up and modify.
+     * @param {WebGLProgram} program - Target Program
+     * @param {string} name - Name of the uniform
      * @param {integer} x - X component
      * @param {integer} y - Y component
      * @param {integer} z - Z component
      * @param {integer} w - W component
      *
-     * @return {this} This WebGL Renderer instance.
+     * @return {Phaser.Renderer.WebGL.WebGLRenderer} [description]
      */
     setInt4: function (program, name, x, y, z, w)
     {
@@ -58616,12 +57683,12 @@ var WebGLRenderer = new Class({
      * @method Phaser.Renderer.WebGL.WebGLRenderer#setMatrix2
      * @since 3.0.0
      *
-     * @param {WebGLProgram} program - The target WebGLProgram from which the uniform location will be looked-up.
-     * @param {string} name - The name of the uniform to look-up and modify.
+     * @param {WebGLProgram} program - [description]
+     * @param {string} name - [description]
      * @param {boolean} transpose - [description]
      * @param {Float32Array} matrix - [description]
      *
-     * @return {this} This WebGL Renderer instance.
+     * @return {Phaser.Renderer.WebGL.WebGLRenderer} [description]
      */
     setMatrix2: function (program, name, transpose, matrix)
     {
@@ -58638,12 +57705,12 @@ var WebGLRenderer = new Class({
      * @method Phaser.Renderer.WebGL.WebGLRenderer#setMatrix3
      * @since 3.0.0
      *
-     * @param {WebGLProgram} program - The target WebGLProgram from which the uniform location will be looked-up.
-     * @param {string} name - The name of the uniform to look-up and modify.
+     * @param {WebGLProgram} program - [description]
+     * @param {string} name - [description]
      * @param {boolean} transpose - [description]
      * @param {Float32Array} matrix - [description]
      *
-     * @return {this} This WebGL Renderer instance.
+     * @return {Phaser.Renderer.WebGL.WebGLRenderer} [description]
      */
     setMatrix3: function (program, name, transpose, matrix)
     {
@@ -58660,12 +57727,12 @@ var WebGLRenderer = new Class({
      * @method Phaser.Renderer.WebGL.WebGLRenderer#setMatrix4
      * @since 3.0.0
      *
-     * @param {WebGLProgram} program - The target WebGLProgram from which the uniform location will be looked-up.
-     * @param {string} name - The name of the uniform to look-up and modify.
+     * @param {WebGLProgram} program - Target program
+     * @param {string} name - Name of the uniform
      * @param {boolean} transpose - Is the matrix transposed
      * @param {Float32Array} matrix - Matrix data
      *
-     * @return {this} This WebGL Renderer instance.
+     * @return {Phaser.Renderer.WebGL.WebGLRenderer} [description]
      */
     setMatrix4: function (program, name, transpose, matrix)
     {
@@ -58697,7 +57764,7 @@ var WebGLRenderer = new Class({
      * @method Phaser.Renderer.WebGL.WebGLRenderer#getMaxTextureSize
      * @since 3.8.0
      *
-     * @return {integer} The maximum supported texture size.
+     * @return {integer} ...
      */
     getMaxTextureSize: function ()
     {
@@ -59710,7 +58777,7 @@ var TextureTintPipeline = new Class({
          * @private
          * @since 3.12.0
          */
-        this.firstQuad = [ 0, 0, 0, 0, 0 ];
+        this.firstQuad = [ 0, 0, 0, 0 ];
 
         /**
          * Internal path quad cache.
@@ -59720,7 +58787,7 @@ var TextureTintPipeline = new Class({
          * @private
          * @since 3.12.0
          */
-        this.prevQuad = [ 0, 0, 0, 0, 0 ];
+        this.prevQuad = [ 0, 0, 0, 0 ];
 
         /**
          * Used internally for triangulating a polygon.
@@ -60430,11 +59497,8 @@ var TextureTintPipeline = new Class({
 
         var calcMatrix = this._tempMatrix3;
 
-        //  Multiply and store result in calcMatrix, only if the parentMatrix is set, otherwise we'll use whatever values are already in the calcMatrix
-        if (parentMatrix)
-        {
-            parentMatrix.multiply(currentMatrix, calcMatrix);
-        }
+        //  Multiply and store result in calcMatrix
+        parentMatrix.multiply(currentMatrix, calcMatrix);
         
         var xw = x + width;
         var yh = y + height;
@@ -60483,11 +59547,8 @@ var TextureTintPipeline = new Class({
 
         var calcMatrix = this._tempMatrix3;
 
-        //  Multiply and store result in calcMatrix, only if the parentMatrix is set, otherwise we'll use whatever values are already in the calcMatrix
-        if (parentMatrix)
-        {
-            parentMatrix.multiply(currentMatrix, calcMatrix);
-        }
+        //  Multiply and store result in calcMatrix
+        parentMatrix.multiply(currentMatrix, calcMatrix);
         
         var tx0 = calcMatrix.getX(x0, y0);
         var ty0 = calcMatrix.getY(x0, y0);
@@ -60570,11 +59631,8 @@ var TextureTintPipeline = new Class({
 
         var calcMatrix = this._tempMatrix3;
 
-        //  Multiply and store result in calcMatrix, only if the parentMatrix is set, otherwise we'll use whatever values are already in the calcMatrix
-        if (parentMatrix)
-        {
-            parentMatrix.multiply(currentMatrix, calcMatrix);
-        }
+        //  Multiply and store result in calcMatrix
+        parentMatrix.multiply(currentMatrix, calcMatrix);
 
         var length = path.length;
         var polygonCache = this.polygonCache;
@@ -60651,10 +59709,6 @@ var TextureTintPipeline = new Class({
     {
         this.renderer.setPipeline(this);
 
-        //  Reset the closePath booleans
-        this.prevQuad[4] = 0;
-        this.firstQuad[4] = 0;
-
         var pathLength = path.length - 1;
 
         for (var pathIndex = 0; pathIndex < pathLength; pathIndex++)
@@ -60698,12 +59752,14 @@ var TextureTintPipeline = new Class({
 
         var calcMatrix = this._tempMatrix3;
 
-        //  Multiply and store result in calcMatrix, only if the parentMatrix is set, otherwise we'll use whatever values are already in the calcMatrix
-        if (parentMatrix)
-        {
-            parentMatrix.multiply(currentMatrix, calcMatrix);
-        }
+        //  Multiply and store result in calcMatrix
+        parentMatrix.multiply(currentMatrix, calcMatrix);
 
+        if (this.vertexCount + 6 > this.vertexCapacity)
+        {
+            this.flush();
+        }
+        
         var dx = bx - ax;
         var dy = by - ay;
 
@@ -60756,7 +59812,7 @@ var TextureTintPipeline = new Class({
         //  TL, BL, BR, TR
         this.batchQuad(tlX, tlY, blX, blY, brX, brY, trX, trY, u0, v0, u1, v1, tintTL, tintTR, tintBL, tintBR, tintEffect);
 
-        if (lineWidth <= 2)
+        if (lineWidth <= 1)
         {
             //  No point doing a linejoin if the line isn't thick enough
             return;
@@ -60765,23 +59821,22 @@ var TextureTintPipeline = new Class({
         var prev = this.prevQuad;
         var first = this.firstQuad;
 
-        if (index > 0 && prev[4])
+        if (index > 0)
         {
             this.batchQuad(tlX, tlY, blX, blY, prev[0], prev[1], prev[2], prev[3], u0, v0, u1, v1, tintTL, tintTR, tintBL, tintBR, tintEffect);
         }
         else
         {
-            first[0] = tlX;
-            first[1] = tlY;
-            first[2] = blX;
-            first[3] = blY;
-            first[4] = 1;
+            first[0] = blX;
+            first[1] = blY;
+            first[2] = tlX;
+            first[3] = tlY;
         }
 
-        if (closePath && first[4])
+        if (closePath)
         {
             //  Add a join for the final path segment
-            this.batchQuad(brX, brY, trX, trY, first[0], first[1], first[2], first[3], u0, v0, u1, v1, tintTL, tintTR, tintBL, tintBR, tintEffect);
+            this.batchQuad(first[0], first[1], first[2], first[3], brX, brY, trX, trY, u0, v0, u1, v1, tintTL, tintTR, tintBL, tintBR, tintEffect);
         }
         else
         {
@@ -60791,7 +59846,6 @@ var TextureTintPipeline = new Class({
             prev[1] = brY;
             prev[2] = trX;
             prev[3] = trY;
-            prev[4] = 1;
         }
     }
 
@@ -61950,6 +61004,16 @@ var Scene = new Class({
         this.cameras;
 
         /**
+         * A scene level 3D Camera System.
+         * This property will only be available if defined in the Scene Injection Map.
+         *
+         * @name Phaser.Scene#cameras3d
+         * @type {Phaser.Cameras.Sprite3D.CameraManager}
+         * @since 3.0.0
+         */
+        this.cameras3d;
+
+        /**
          * A scene level Game Object Factory.
          * This property will only be available if defined in the Scene Injection Map.
          *
@@ -62087,8 +61151,8 @@ var Scene = new Class({
      * @override
      * @since 3.0.0
      *
-     * @param {number} time - The current time. Either a High Resolution Timer value if it comes from Request Animation Frame, or Date.now if using SetTimeout.
-     * @param {number} delta - The delta time in ms since the last frame. This is a smoothed and capped value based on the FPS rate.
+     * @param {number} time - [description]
+     * @param {number} delta - [description]
      */
     update: function ()
     {
@@ -63212,13 +62276,6 @@ var SceneManager = new Class({
 
         if (scene)
         {
-            //  If the Scene is already running (perhaps they called start from a launched sub-Scene?)
-            //  then we close it down before starting it again.
-            if (scene.sys.isActive())
-            {
-                scene.sys.shutdown();
-            }
-
             scene.sys.start(data);
 
             var loader;
@@ -64065,8 +63122,8 @@ var ScenePlugin = new Class({
      * @private
      * @since 3.5.0
      *
-     * @param {number} time - The current time. Either a High Resolution Timer value if it comes from Request Animation Frame, or Date.now if using SetTimeout.
-     * @param {number} delta - The delta time in ms since the last frame. This is a smoothed and capped value based on the FPS rate.
+     * @param {number} time - [description]
+     * @param {number} delta - [description]
      */
     step: function (time, delta)
     {
@@ -72490,7 +71547,6 @@ module.exports = {
  */
 
 var Class = __webpack_require__(/*! ../utils/Class */ "./utils/Class.js");
-var Color = __webpack_require__(/*! ../display/color/Color */ "./display/color/Color.js");
 var IsSizePowerOfTwo = __webpack_require__(/*! ../math/pow2/IsSizePowerOfTwo */ "./math/pow2/IsSizePowerOfTwo.js");
 var Texture = __webpack_require__(/*! ./Texture */ "./textures/Texture.js");
 
@@ -72520,7 +71576,7 @@ var Texture = __webpack_require__(/*! ./Texture */ "./textures/Texture.js");
  * @constructor
  * @since 3.7.0
  *
- * @param {Phaser.Textures.CanvasTexture} manager - A reference to the Texture Manager this Texture belongs to.
+ * @param {Phaser.Textures.TextureManager} manager - A reference to the Texture Manager this Texture belongs to.
  * @param {string} key - The unique string-based key of this Texture.
  * @param {HTMLCanvasElement} source - The canvas element that is used as the base of this texture.
  * @param {integer} width - The width of the canvas.
@@ -72541,7 +71597,7 @@ var CanvasTexture = new Class({
         /**
          * A reference to the Texture Source of this Canvas.
          *
-         * @name Phaser.Textures.CanvasTexturer#_source
+         * @name Phaser.Textures.TextureManager#_source
          * @type {Phaser.Textures.TextureSource}
          * @private
          * @since 3.7.0
@@ -72551,7 +71607,7 @@ var CanvasTexture = new Class({
         /**
          * The source Canvas Element.
          *
-         * @name Phaser.Textures.CanvasTexture#canvas
+         * @name Phaser.Textures.TextureManager#canvas
          * @readOnly
          * @type {HTMLCanvasElement}
          * @since 3.7.0
@@ -72561,7 +71617,7 @@ var CanvasTexture = new Class({
         /**
          * The 2D Canvas Rendering Context.
          *
-         * @name Phaser.Textures.CanvasTexture#canvas
+         * @name Phaser.Textures.TextureManager#canvas
          * @readOnly
          * @type {CanvasRenderingContext2D}
          * @since 3.7.0
@@ -72570,9 +71626,9 @@ var CanvasTexture = new Class({
 
         /**
          * The width of the Canvas.
-         * This property is read-only, if you wish to change it use the `setSize` method.
+         * This property is read-only, if you wish to change use `setSize`.
          *
-         * @name Phaser.Textures.CanvasTexture#width
+         * @name Phaser.Textures.TextureManager#width
          * @readOnly
          * @type {integer}
          * @since 3.7.0
@@ -72581,165 +71637,14 @@ var CanvasTexture = new Class({
 
         /**
          * The height of the Canvas.
-         * This property is read-only, if you wish to change it use the `setSize` method.
+         * This property is read-only, if you wish to change use `setSize`.
          *
-         * @name Phaser.Textures.CanvasTexture#height
+         * @name Phaser.Textures.TextureManager#height
          * @readOnly
          * @type {integer}
          * @since 3.7.0
          */
         this.height = height;
-
-        /**
-         * The context image data.
-         * Use the `update` method to populate this when the canvas changes.
-         *
-         * @name Phaser.Textures.CanvasTexture#imageData
-         * @type {ImageData}
-         * @since 3.13.0
-         */
-        this.imageData = this.context.getImageData(0, 0, width, height);
-
-        /**
-         * A Uint8ClampedArray view into the `buffer`.
-         * Use the `update` method to populate this when the canvas changes.
-         * Note that this is unavailable in some browsers, such as Epic Browser, due to their security restrictions.
-         *
-         * @name Phaser.Textures.CanvasTexture#data
-         * @type {Uint8ClampedArray}
-         * @since 3.13.0
-         */
-        this.data = null;
-
-        if (this.imageData)
-        {
-            this.data = this.imageData.data;
-        }
-
-        /**
-         * An Uint32Array view into the `buffer`.
-         *
-         * @name Phaser.Textures.CanvasTexture#pixels
-         * @type {Uint32Array}
-         * @since 3.13.0
-         */
-        this.pixels = null;
-
-        /**
-         * An ArrayBuffer the same size as the context ImageData.
-         *
-         * @name Phaser.Textures.CanvasTexture#buffer
-         * @type {ArrayBuffer}
-         * @since 3.13.0
-         */
-        this.buffer;
-
-        if (this.data)
-        {
-            if (this.imageData.data.buffer)
-            {
-                this.buffer = this.imageData.data.buffer;
-                this.pixels = new Uint32Array(this.buffer);
-            }
-            else if (window.ArrayBuffer)
-            {
-                this.buffer = new ArrayBuffer(this.imageData.data.length);
-                this.pixels = new Uint32Array(this.buffer);
-            }
-            else
-            {
-                this.pixels = this.imageData.data;
-            }
-        }
-    },
-
-    /**
-     * This re-creates the `imageData` from the current context.
-     * It then re-builds the ArrayBuffer, the `data` Uint8ClampedArray reference and the `pixels` Int32Array.
-     *
-     * Warning: This is a very expensive operation, so use it sparingly.
-     *
-     * @method Phaser.Textures.CanvasTexture#update
-     * @since 3.13.0
-     *
-     * @return {Phaser.Textures.CanvasTexture} This CanvasTexture.
-     */
-    update: function ()
-    {
-        this.imageData = this.context.getImageData(0, 0, this.width, this.height);
-
-        this.data = this.imageData.data;
-
-        if (this.imageData.data.buffer)
-        {
-            this.buffer = this.imageData.data.buffer;
-            this.pixels = new Uint32Array(this.buffer);
-        }
-        else if (window.ArrayBuffer)
-        {
-            this.buffer = new ArrayBuffer(this.imageData.data.length);
-            this.pixels = new Uint32Array(this.buffer);
-        }
-        else
-        {
-            this.pixels = this.imageData.data;
-        }
-
-        return this;
-    },
-
-    /**
-     * Draws the given Image or Canvas element to this CanvasTexture, then updates the internal
-     * ImageData buffer and arrays.
-     *
-     * @method Phaser.Textures.CanvasTexture#draw
-     * @since 3.13.0
-     * 
-     * @param {integer} x - The x coordinate to draw the source at.
-     * @param {integer} y - The y coordinate to draw the source at.
-     * @param {(HTMLImageElement|HTMLCanvasElement)} source - The element to draw to this canvas.
-     * 
-     * @return {Phaser.Textures.CanvasTexture} This CanvasTexture.
-     */
-    draw: function (x, y, source)
-    {
-        this.context.drawImage(source, x, y);
-
-        return this.update();
-    },
-
-    /**
-     * Get the color of a specific pixel from this texture and store it in a Color object.
-     * 
-     * If you have drawn anything to this CanvasTexture since it was created you must call `CanvasTexture.update` to refresh the array buffer,
-     * otherwise this may return out of date color values, or worse - throw a run-time error as it tries to access an array element that doesn't exist.
-     *
-     * @method Phaser.Textures.CanvasTexture#getPixel
-     * @since 3.13.0
-     * 
-     * @param {integer} x - The x coordinate of the pixel to be set. Must lay within the dimensions of this CanvasTexture and be an integer.
-     * @param {integer} y - The y coordinate of the pixel to be set. Must lay within the dimensions of this CanvasTexture and be an integer.
-     * @param {Phaser.Display.Color} [out] - An object into which 4 properties will be set: r, g, b and a. If not provided a Color object will be created.
-     * 
-     * @return {Phaser.Display.Color} An object with the red, green, blue and alpha values set in the r, g, b and a properties.
-     */
-    getPixel: function (x, y, out)
-    {
-        if (!out)
-        {
-            out = new Color();
-        }
-
-        var index = ~~(x + (y * this.width));
-
-        index *= 4;
-
-        var r = this.data[index];
-        var g = this.data[++index];
-        var b = this.data[++index];
-        var a = this.data[++index];
-
-        return out.setTo(r, g, b, a);
     },
 
     /**
@@ -72797,7 +71702,7 @@ var CanvasTexture = new Class({
     {
         this.context.clearRect(0, 0, this.width, this.height);
 
-        return this.update();
+        return this;
     },
 
     /**
@@ -75499,7 +74404,7 @@ var TextureSource = new Class({
     {
         if (this.renderer.gl && this.isCanvas)
         {
-            this.glTexture = this.renderer.canvasToTexture(this.image, this.glTexture);
+            this.renderer.canvasToTexture(this.image, this.glTexture);
         }
     },
 
@@ -76773,8 +75678,8 @@ var Clock = new Class({
      * @method Phaser.Time.Clock#preUpdate
      * @since 3.0.0
      *
-     * @param {number} time - The current time. Either a High Resolution Timer value if it comes from Request Animation Frame, or Date.now if using SetTimeout.
-     * @param {number} delta - The delta time in ms since the last frame. This is a smoothed and capped value based on the FPS rate.
+     * @param {number} time - [description]
+     * @param {number} delta - [description]
      */
     preUpdate: function ()
     {
@@ -76824,8 +75729,8 @@ var Clock = new Class({
      * @method Phaser.Time.Clock#update
      * @since 3.0.0
      *
-     * @param {number} time - The current time. Either a High Resolution Timer value if it comes from Request Animation Frame, or Date.now if using SetTimeout.
-     * @param {number} delta - The delta time in ms since the last frame. This is a smoothed and capped value based on the FPS rate.
+     * @param {number} time - [description]
+     * @param {number} delta - [description]
      */
     update: function (time, delta)
     {
@@ -77971,7 +76876,7 @@ var Timeline = new Class({
      * @since 3.0.0
      *
      * @param {number} timestamp - [description]
-     * @param {number} delta - The delta time in ms since the last frame. This is a smoothed and capped value based on the FPS rate.
+     * @param {number} delta - [description]
      *
      * @return {boolean} Returns `true` if this Timeline has finished and should be removed from the Tween Manager.
      */
@@ -78454,7 +77359,6 @@ var TweenManager = new Class({
 
         var list = this._destroy;
         var active = this._active;
-        var pending = this._pending;
         var i;
         var tween;
 
@@ -78466,18 +77370,7 @@ var TweenManager = new Class({
             //  Remove from the 'active' array
             var idx = active.indexOf(tween);
 
-            if (idx === -1)
-            {
-                //  Not in the active array, is it in pending instead?
-                idx = pending.indexOf(tween);
-
-                if (idx > -1)
-                {
-                    tween.state = TWEEN_CONST.REMOVED;
-                    pending.splice(idx, 1);
-                }
-            }
-            else
+            if (idx !== -1)
             {
                 tween.state = TWEEN_CONST.REMOVED;
                 active.splice(idx, 1);
@@ -78523,7 +77416,7 @@ var TweenManager = new Class({
      * @since 3.0.0
      *
      * @param {number} timestamp - [description]
-     * @param {number} delta - The delta time in ms since the last frame. This is a smoothed and capped value based on the FPS rate.
+     * @param {number} delta - [description]
      */
     update: function (timestamp, delta)
     {
@@ -80926,12 +79819,6 @@ var Tween = new Class({
 
         if (this.state !== TWEEN_CONST.REMOVED)
         {
-            if (this.state === TWEEN_CONST.PAUSED || this.state === TWEEN_CONST.PENDING_ADD)
-            {
-                this.parent._destroy.push(this);
-                this.parent._toProcess++;
-            }
-
             this.state = TWEEN_CONST.PENDING_REMOVE;
         }
     },
@@ -80943,7 +79830,7 @@ var Tween = new Class({
      * @since 3.0.0
      *
      * @param {number} timestamp - [description]
-     * @param {number} delta - The delta time in ms since the last frame. This is a smoothed and capped value based on the FPS rate.
+     * @param {number} delta - [description]
      *
      * @return {boolean} Returns `true` if this Tween has finished and should be removed from the Tween Manager, otherwise returns `false`.
      */
