@@ -6,6 +6,7 @@
 * Randomly generated map.
 
 # Changelog
+- Generated minimap as image.
 * Rolled back to v3.12.0 because texture marked as deleted when calling `generateTexture`.
 * Replacing minimap camera with image. Not yet generated! (just a black image for now).
 * Extracted many values to constants.
