@@ -33,7 +33,14 @@ WORLD_TILES_HEIGHT = 100;
 const WORLD_WIDTH = TILE_SIZE * WORLD_TILES_WIDTH;
 const WORLD_HEIGHT = TILE_SIZE * WORLD_TILES_HEIGHT;
 
-
+// GROUND
+const GRASS_1 = 125;
+const GRASS_2 = 126;
+const DIRT_1 = 124;
+const DIRT_2 = 132;
+const WATER_1 = 248;
+const WATER_2 = 249;
+const WATER_3 = 250;
 
 const config = {
   type: Phaser.WEBGL,
@@ -58,7 +65,9 @@ const game = new Phaser.Game(config);
 let cursors;
 let player;
 let debugGraphic;
+let minimap;
 let minimapImage;
+let minimapMarker;
 
 function preload() {
   this.load.image("tiles", "assets/tuxmon-sample-32px-extruded.png");
@@ -79,7 +88,7 @@ function generateHeights(width, height) {
   for(var i=0; i<height; i++) { // TODO @aaron - Play with this loop values to see how affects scenary
       properties[i] = [];
       for(var j=0; j<width; j++) {
-          var value = noise.simplex2(i/200, j/200);
+          var value = noise.simplex2(i/100, j/100);
           properties[i][j] = value;
       }
   }
@@ -87,13 +96,6 @@ function generateHeights(width, height) {
 }
 
 function generateGround(mapHeights) {
-  const GRASS_1 = 125;
-  const GRASS_2 = 126;
-  const DIRT_1 = 124;
-  const DIRT_2 = 132;
-  const WATER_1 = 248;
-  const WATER_2 = 249;
-  const WATER_3 = 250;
 
   var ground = [];
   for(var i=0; i<mapHeights.length; i++) {
@@ -109,12 +111,34 @@ function generateGround(mapHeights) {
 }
 
 function createMinimapImage(scene, ground) {
+  let minimap_tile_width = MINIMAP_WIDTH / WORLD_TILES_WIDTH;
+  let minimap_tile_height = MINIMAP_HEIGHT / WORLD_TILES_HEIGHT;
   let graphics = scene.make.graphics().fillStyle(0x000000).fillRect(0, 0, MINIMAP_WIDTH, MINIMAP_HEIGHT);
+  for(var i=0; i<ground.length; i++) {
+	  for(var j=0; j<ground[0].length; j++) {
+		  let type = ground[i][j];
+		  switch(type) {
+			  case WATER_1:
+				  graphics.fillStyle(0x5068d0, 1);
+				  break;
+			  case GRASS_1:
+				  graphics.fillStyle(0x40b080, 1);
+				  break;
+			  case DIRT_1:
+				  graphics.fillStyle(0xd8c880, 1);
+				  break;
+		  }
+		  graphics.fillRect(i*minimap_tile_width, j*minimap_tile_height, minimap_tile_width, minimap_tile_height);
+	  }
+  }
   graphics.generateTexture('minimap', MINIMAP_WIDTH, MINIMAP_HEIGHT);
-  minimapImage = scene.add.image(CANVAS_WIDTH/2, CANVAS_HEIGHT/2, 'minimap')
-    .setDepth(30)
-    .setScrollFactor(0)
-    .setVisible(false);
+  minimap = scene.add.container(CANVAS_WIDTH/2, CANVAS_HEIGHT/2);
+  minimap.setDepth(30)
+	.setScrollFactor(0)
+	.setVisible(false);
+  minimapImage = scene.add.image(0, 0, 'minimap');
+  //minimapMarker = scene.add.rectangle(0, 0, 30, 30, 0xff0000, 1);
+  minimap.add([minimapImage]);//, minimapMarker]);
   graphics.destroy();
 }
 
@@ -242,8 +266,8 @@ function create() {
 
   // Minimap "M"
   this.input.keyboard.on("keydown_M", event => {
-    if(minimapImage) {
-      minimapImage.setVisible(!minimapImage.visible);
+    if(minimap) {
+      minimap.setVisible(!minimap.visible);
     }
   });
 

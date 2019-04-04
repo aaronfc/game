@@ -1,5 +1,10 @@
 
-# 
+# Thu Apr  4 17:01:11 CEST 2019
+- Long time since last update.
+- Commited some changes that were not commited yet.
+- Minimarker for the map gives error. rectangle method not found. Probably Phaser version needs to be updated.
+
+
 # Sat Sep 22 14:49:33 CEST 2018
 - Rolled back Phaser to v3.12.0. Issue with texture marked as delete when calling `generateTexture`.
 - Anchor point for images is in 0.5, 0.5. Good to know!
